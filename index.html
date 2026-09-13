@@ -115,6 +115,125 @@
            display: flex; flex-direction: column;
            padding: 6% 7% 7%; }
 
+  .mid {
+    cursor: pointer;
+    transition: transform .15s steps(3);
+  }
+  .mid:hover, .mid:focus-visible { transform: translate(10px, -6px); outline: none; }
+  .mid:focus-visible { box-shadow: 0 0 0 3px var(--phosphor); }
+  .stack:has(.mid:hover) .front { transform: translateX(-4px); }
+  .front { transition: transform .15s steps(3); }
+
+  .dossier {
+    border: 3px solid var(--cream-ink);
+    padding: 0;
+    background: var(--cream);
+    color: #1c1d18;
+    width: min(600px, calc(100vw - 32px));
+    max-height: min(84vh, 900px);
+    box-sizing: border-box;
+    position: relative;
+    overflow: hidden;
+    filter: drop-shadow(4px 5px 0 var(--bleed));
+    font-family: var(--mono);
+    font-variant-ligatures: none;
+  }
+  .dossier::backdrop { background: rgba(0,0,0,.78); }
+  .dossier::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: repeating-linear-gradient(0deg, rgba(0,0,0,.12) 0 2px, transparent 2px 4px);
+  }
+  .dossier-inner {
+    max-height: min(84vh, 900px);
+    overflow-y: auto;
+    padding: 26px 28px 30px;
+    background-image: radial-gradient(circle, rgba(0,0,0,.10) 1px, transparent 1.2px);
+    background-size: 3px 3px;
+    box-sizing: border-box;
+  }
+  .dossier-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    border-bottom: 4px solid #1c1d18;
+    padding-bottom: 10px;
+    margin-bottom: 18px;
+  }
+  .dossier-head .tag {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: clamp(14px, 3.6vw, 18px);
+    letter-spacing: .06em;
+    text-transform: uppercase;
+  }
+  .dossier-close {
+    font-family: var(--display);
+    font-size: 11px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    background: none;
+    border: 2px solid #1c1d18;
+    color: #1c1d18;
+    padding: 6px 8px;
+    cursor: pointer;
+    flex: none;
+  }
+  .dossier-close:hover, .dossier-close:focus-visible { background: #1c1d18; color: var(--cream); outline: none; }
+  .dossier h2 {
+    font-family: var(--mono);
+    font-size: clamp(30px, 7vw, 38px);
+    line-height: .95;
+    margin: 0 0 16px;
+    text-transform: lowercase;
+    text-wrap: balance;
+  }
+  .dossier h3 {
+    font-family: var(--display);
+    font-size: 12px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    margin: 22px 0 6px;
+  }
+  .dossier p, .dossier li {
+    font-size: clamp(19px, 4.6vw, 22px);
+    line-height: 1.15;
+    margin: 0 0 8px;
+  }
+  .dossier ul { padding-left: 20px; margin: 0; }
+  .dossier table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: clamp(18px, 4.4vw, 21px);
+    margin: 6px 0 4px;
+  }
+  .dossier td { padding: 4px 0; border-bottom: 2px dotted #1c1d18; vertical-align: top; }
+  .dossier td:last-child { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .dossier .stamp {
+    display: inline-block;
+    margin-top: 18px;
+    padding: 5px 8px;
+    border: 3px solid #8a1f3f;
+    color: #8a1f3f;
+    font-family: var(--display);
+    font-size: 11px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    transform: rotate(-2deg);
+  }
+  .dossier .fine {
+    font-size: 16px;
+    line-height: 1.2;
+    color: #4a4c44;
+    margin-top: 16px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .mid, .front { transition: none; }
+  }
+
   .question {
     margin: auto 0;
     font-family: var(--mono);
@@ -327,7 +446,7 @@
 <body>
 <main class="stack" aria-label="operation829 whitepaper folder">
   <div class="folder rear" aria-hidden="true"></div>
-  <div class="folder mid" aria-hidden="true"></div>
+  <div class="folder mid" id="mid" role="button" tabindex="0" aria-haspopup="dialog" aria-controls="dossier" aria-label="Open dossier 02: the QUBT thesis"></div>
   <div class="folder front">
     <h1 class="question">Can a gamefi experiment short squeeze a stock?</h1>
     <div class="redacted" aria-hidden="true"><span></span><span></span><span></span></div>
@@ -372,6 +491,59 @@
   <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.9 2H22l-7.2 8.3L23 22h-6.6l-5.2-6.8L5.3 22H2.1l7.7-8.8L1.6 2h6.8l4.7 6.2L18.9 2zm-1.2 18h1.8L7.1 3.9H5.2L17.7 20z"/></svg>
   <span>@xLemoneee</span>
 </a>
+
+<dialog class="dossier" id="dossier" aria-labelledby="dossier-title">
+  <div class="dossier-inner">
+    <div class="dossier-head">
+      <span class="tag">Dossier 02 // QUBT</span>
+      <button class="dossier-close" id="dossier-close" type="button">[ close ]</button>
+    </div>
+    <h2 id="dossier-title">the short squeeze thesis</h2>
+
+    <h3>01 // the target</h3>
+    <p>Quantum Computing Inc. NASDAQ: QUBT. A small-cap quantum name with a retail-heavy shareholder base and a short position above a quarter of its float.</p>
+    <table aria-label="QUBT figures, September 2026">
+      <tr><td>market cap</td><td>~$1.8B</td></tr>
+      <tr><td>shares outstanding</td><td>~226M</td></tr>
+      <tr><td>shares sold short</td><td>~54.7M</td></tr>
+      <tr><td>short interest, % of float</td><td>~27%</td></tr>
+      <tr><td>cost of 1% of the float at ~$8</td><td>~$18M</td></tr>
+    </table>
+    <p class="fine">Figures as of mid-September 2026 from FINRA-derived short data and public filings. They move. Check them yourself.</p>
+
+    <h3>02 // why it can squeeze</h3>
+    <ul>
+      <li>Every share sold short must be bought back. 54.7M shares of forced future demand already exist.</li>
+      <li>Borrow gets expensive when lendable shares get scarce. Shares held and never lent tighten that supply.</li>
+      <li>Small float means a treasury of tens of millions is a real fraction of the stock, not a rounding error.</li>
+      <li>The sector trades on narrative. Narrative is what a coordination game produces.</li>
+    </ul>
+
+    <h3>03 // the mechanism</h3>
+    <p>Every OP829 trade pays a 5% tax. 3% of every trade goes to the Vault. The Vault accumulates QUBT exposure on a published schedule, in slow scheduled tranches, and does not sell. A buy feeds it. A sell feeds it. Panic feeds it.</p>
+    <p>The game exists to keep the trades coming after launch week. Seasons follow the short-interest calendar. Missions reward holding through tranche days. Squads compete for sectors of the float.</p>
+
+    <h3>04 // the math, honestly</h3>
+    <table aria-label="Vault inflow by daily token volume">
+      <tr><td>daily OP829 volume</td><td>float captured / month</td></tr>
+      <tr><td>$1M</td><td>0.05%</td></tr>
+      <tr><td>$10M</td><td>0.50%</td></tr>
+      <tr><td>$50M</td><td>2.5%</td></tr>
+    </table>
+    <p>This is slow. The effect is not on tomorrow's price. It is on the lendable pool, month after month, until the borrow market notices. Twelve-month target: 1% of shares outstanding in the Vault.</p>
+
+    <h3>05 // what kills it</h3>
+    <ul>
+      <li>QUBT issuing new shares into a rally. It has done this before. Every new share is one the shorts can cover with.</li>
+      <li>Token volume decaying like every fee token before it. The game is the bet against that.</li>
+      <li>Shorts covering quietly over months, taking the pressure out before anything visible happens.</li>
+      <li>Regulators. A token that buys a stock lives in the overlap of three bodies of law.</li>
+    </ul>
+
+    <span class="stamp">experimental // unverified</span>
+    <p class="fine">This is a thesis, not a forecast. Nothing here is investment advice, an offer of securities, or a promise of any distribution from the Vault. OP829 confers no ownership of any QUBT shares. Do not buy any stock because a folder on a website told you to.</p>
+  </div>
+</dialog>
 
 <script>
   // The readout sits at zero. Swap BASE for real values if a countdown is ever wanted.
@@ -458,6 +630,23 @@
       fit();
     }
   });
+  // Dossier 02: the cream folder opens the thesis.
+  var mid = document.getElementById('mid');
+  var dossier = document.getElementById('dossier');
+  function openDossier() {
+    if (typeof dossier.showModal === 'function') dossier.showModal();
+    else dossier.setAttribute('open', '');
+    dossier.querySelector('.dossier-inner').scrollTop = 0;
+  }
+  mid.addEventListener('click', openDossier);
+  mid.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openDossier(); }
+  });
+  document.getElementById('dossier-close').addEventListener('click', function () { dossier.close(); });
+  dossier.addEventListener('click', function (e) {
+    if (e.target === dossier) dossier.close();   // click on the dark backdrop
+  });
+
   // Console breadcrumb for the people who look.
   console.log('%c829', 'font-family:monospace;font-size:40px;color:#34a466');
   console.log('%c> access level 0. the file is sealed.', 'font-family:monospace;color:#7dffb0');
