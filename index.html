@@ -363,6 +363,10 @@
   .burn-fallback input:focus { border-bottom-color: var(--phosphor); }
   .burn-fallback .burn-btn { margin: 0; padding: 7px 10px; font-size: 10px; grid-column: auto; }
   .burn-instr a { color: var(--phosphor); }
+  .hist { display: grid; gap: 4px; font-family: var(--mono); font-size: 18px; }
+  .hist a { color: var(--phosphor); text-decoration: none; border-bottom: 1px dotted var(--phosphor-dim); }
+  .hist .hit { color: var(--phosphor); }
+  .hist .miss { color: var(--phosphor-dim); }
   .link-btn {
     background: none;
     border: 0;
@@ -908,6 +912,10 @@
           <button class="copy-btn" id="bi-copy" type="button">[ copy ]</button>
         </div>
       </div>
+      <div id="bi-history" hidden>
+        <span class="k">this wallet so far</span>
+        <div class="hist" id="bi-history-list"></div>
+      </div>
       <div class="burn-status" id="bi-status" aria-live="polite"><span>waiting for verification</span><span class="cursor" aria-hidden="true"></span></div>
       <div id="bi-result" hidden>
         <span class="k">transaction</span><a class="addr" id="bi-tx" href="#" target="_blank" rel="noopener"></a>
@@ -1211,6 +1219,7 @@
     biRoll.textContent = 'sha256(block + tx) = ' + e.roll.hash.slice(0, 16) + '… // ' + (e.roll.n % BigInt(BURN.odds)).toString() + ' of ' + BURN.odds + (e.roll.win ? ' // hit' : ' // miss');
     biResult.hidden = false;
     biFallback.hidden = true;
+    paintHistory(e.wallet.length === 66 ? '0x' + e.wallet.slice(-40) : e.wallet);
     biAgain.hidden = sealed();
     biNote.hidden = !sealed();
     if (sealed()) biNote.textContent = 'tranche 01 is sealed. every seat is taken.';
@@ -1232,6 +1241,10 @@
     }, 12000);
   }
 
+  function entryByTx(hash) {
+    var h = hash.toLowerCase();
+    return ledger.entries.find(function (e) { return e.tx.toLowerCase() === h; }) || null;
+  }
   async function verifyByHash(hash) {
     if (!pending) return;
     if (!isHash(hash)) { failed('that is not a transaction hash'); return; }
@@ -1241,15 +1254,24 @@
       var rcpt = await rpc('eth_getTransactionReceipt', [hash]);
       if (!rcpt) { failed('not found yet // still pending or wrong chain'); return; }
       if (rcpt.status !== '0x1') { failed('transaction reverted'); return; }
-      var mine = (rcpt.logs || []).find(function (l) {
+      var burns = (rcpt.logs || []).filter(function (l) {
         return l.address.toLowerCase() === BURN.token.toLowerCase() && l.topics[0] === TRANSFER_TOPIC &&
-          l.topics[1] === pad32(pending.wallet) && l.topics[2] === pad32(BURN.burnAddress);
+          l.topics[2] === pad32(BURN.burnAddress);
       });
-      if (!mine) { failed('no burn from your wallet in that transaction'); return; }
+      if (!burns.length) { failed('no burn to the dead address in that transaction'); return; }
+      var mine = burns.find(function (l) { return l.topics[1] === pad32(pending.wallet); });
+      if (!mine) {
+        var sender = '0x' + burns[0].topics[1].slice(-40);
+        failed('that burn came from ' + sender.slice(0, 8) + '…' + sender.slice(-4) + ' // you entered ' + pending.wallet.slice(0, 8) + '…' + pending.wallet.slice(-4) + ' // cancel and enter the sending wallet');
+        return;
+      }
       if (BigInt(mine.data) < entryUnits) { failed('burn is under the entry // it does not roll'); return; }
       await refresh();
-      if (!checkPending()) failed('burn seen but not in the ledger yet // try again in a moment');
-    } catch (e) { failed('could not reach the chain // try again'); }
+      var e = entryByTx(hash);
+      if (!e) { await new Promise(function (r) { setTimeout(r, 4000); }); await refresh(); e = entryByTx(hash); }
+      if (e) settle(e);
+      else failed('burn confirmed but not indexed yet // wait a moment and verify again');
+    } catch (err) { failed('could not reach the chain // try again'); }
   }
 
   // Demo: fabricate a burn log with a random block hash, as the chain would.
@@ -1266,9 +1288,38 @@
     });
   }
 
+  function paintHistory(wallet) {
+    var mine = ledger.byWallet[pad32(wallet)] || [];
+    var box = document.getElementById('bi-history');
+    var list = document.getElementById('bi-history-list');
+    list.innerHTML = '';
+    box.hidden = mine.length === 0;
+    mine.slice(-8).reverse().forEach(function (e) {
+      var row = document.createElement('div');
+      row.className = e.seat ? 'hit' : 'miss';
+      var a = document.createElement('a');
+      a.href = BURN.explorerTx ? BURN.explorerTx + e.tx : '#';
+      a.target = '_blank'; a.rel = 'noopener';
+      a.textContent = e.tx.slice(0, 10) + '…' + e.tx.slice(-4);
+      row.appendChild(a);
+      row.appendChild(document.createTextNode(e.seat ? '  seat ' + pad3(e.seat) : '  no seat // roll ' + (e.roll.n % BigInt(BURN.odds)).toString() + ' of ' + BURN.odds));
+      list.appendChild(row);
+    });
+    if (mine.length > 8) {
+      var more = document.createElement('div'); more.className = 'miss';
+      more.textContent = '+ ' + (mine.length - 8) + ' earlier';
+      list.appendChild(more);
+    }
+  }
   function begin(wallet) {
     pending = { wallet: wallet, rollsBefore: (ledger.byWallet[pad32(wallet)] || []).length, startedAt: Date.now() };
     showInstr(wallet);
+    paintHistory(wallet);
+    var seatsHeld = (ledger.byWallet[pad32(wallet)] || []).filter(function (x) { return x.seat; }).length;
+    if (pending.rollsBefore > 0) {
+      biNote.hidden = false;
+      biNote.textContent = 'already sent? paste the tx hash below. ' + pending.rollsBefore + ' roll' + (pending.rollsBefore === 1 ? '' : 's') + ' and ' + seatsHeld + ' seat' + (seatsHeld === 1 ? '' : 's') + ' on this wallet so far.';
+    }
     if (live) startPolling();
     else if (BURN.demo) setTimeout(async function () {
       if (!pending) return;
