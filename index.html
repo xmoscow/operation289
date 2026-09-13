@@ -69,7 +69,7 @@
 
   .stack {
     position: relative;
-    width: min(460px, 100%, 52vh);
+    width: min(460px, 100%, 58vh);
     aspect-ratio: 400 / 480;
     flex: none;
     filter: drop-shadow(4px 5px 0 var(--bleed));
@@ -135,6 +135,225 @@
   .dossier.dossier-blue .fine { color: #c3c8ff; }
   .dossier.dossier-blue .stamp { border-color: #ffd166; color: #ffd166; }
   .dossier.dossier-blue .lead { font-size: clamp(22px, 5.2vw, 26px); }
+  /* tranche console */
+  .tranche {
+    width: min(460px, 100%);
+    box-sizing: border-box;
+    border: 3px solid var(--phosphor-dim);
+    background: rgba(125,255,176,.03);
+    padding: 14px 16px 16px;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    column-gap: 14px;
+    row-gap: 9px;
+    align-items: center;
+    font-family: var(--display);
+    font-size: 11px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--phosphor-dim);
+  }
+  .tranche-title {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 10px;
+    color: var(--phosphor);
+    font-size: 13px;
+    padding-bottom: 8px;
+    border-bottom: 2px dotted var(--phosphor-dim);
+    text-shadow: 0 0 6px rgba(125,255,176,.45);
+  }
+  .tranche-title .state { color: #ff3b6b; text-shadow: 0 0 6px rgba(255,59,107,.5); }
+  .tranche .val {
+    font-family: var(--mono);
+    font-size: 20px;
+    letter-spacing: .02em;
+    text-transform: none;
+    color: var(--phosphor);
+    font-variant-numeric: tabular-nums;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+  }
+  .seats {
+    flex: 1;
+    height: 12px;
+    border: 2px solid var(--phosphor-dim);
+    background:
+      repeating-linear-gradient(90deg, var(--phosphor-dim) 0 6px, transparent 6px 9px) left / var(--fill, 0%) 100% no-repeat,
+      repeating-linear-gradient(90deg, rgba(63,154,102,.25) 0 6px, transparent 6px 9px);
+  }
+  .tranche .redact {
+    display: inline-block;
+    width: 7ch;
+    height: .7em;
+    background: var(--phosphor-dim);
+    background-image: radial-gradient(circle, rgba(7,8,7,.6) 1px, transparent 1.2px);
+    background-size: 3px 3px;
+    opacity: .7;
+  }
+  .burn-btn {
+    grid-column: 1 / -1;
+    margin-top: 6px;
+    font: inherit;
+    font-size: 12px;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--crt);
+    background: var(--phosphor);
+    border: 3px solid var(--phosphor);
+    padding: 11px 14px;
+    cursor: pointer;
+    box-shadow: 0 0 12px rgba(125,255,176,.35);
+  }
+  .burn-btn:hover, .burn-btn:focus-visible { background: var(--crt); color: var(--phosphor); outline: none; }
+
+  /* terminal dossier for the tranche explainer */
+  .dossier.dossier-term { background: var(--crt); color: var(--phosphor); border-color: var(--phosphor-dim); filter: none; box-shadow: 0 0 24px rgba(125,255,176,.15); }
+  .dossier.dossier-term .dossier-inner { background-image: none; }
+  .dossier.dossier-term .dossier-head { border-color: var(--phosphor-dim); }
+  .dossier.dossier-term .dossier-head .tag { text-shadow: 0 0 6px rgba(125,255,176,.45); }
+  .dossier.dossier-term .dossier-close { border-color: var(--phosphor-dim); color: var(--phosphor); }
+  .dossier.dossier-term .dossier-close:hover, .dossier.dossier-term .dossier-close:focus-visible { background: var(--phosphor); color: var(--crt); }
+  .dossier.dossier-term h2 { text-shadow: 0 0 8px rgba(125,255,176,.4); }
+  .dossier.dossier-term h3 { color: var(--phosphor-dim); }
+  .dossier.dossier-term ol { padding-left: 0; margin: 0; list-style: none; counter-reset: step; }
+  .dossier.dossier-term ol li { counter-increment: step; display: grid; grid-template-columns: 3ch 1fr; gap: 10px; margin-bottom: 12px; }
+  .dossier.dossier-term ol li::before { content: counter(step, decimal-leading-zero); font-family: var(--display); font-size: 12px; color: var(--phosphor-dim); padding-top: 4px; }
+  .dossier.dossier-term .fine { color: var(--phosphor-dim); }
+  .burn-form {
+    margin-top: 18px;
+    border: 2px dotted var(--phosphor-dim);
+    padding: 12px 14px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 10px;
+    align-items: center;
+  }
+  .burn-form label {
+    grid-column: 1 / -1;
+    font-family: var(--display);
+    font-size: 11px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--phosphor-dim);
+  }
+  .burn-form input {
+    font-family: var(--mono);
+    font-size: 24px;
+    color: var(--phosphor);
+    background: transparent;
+    border: 0;
+    border-bottom: 2px solid var(--phosphor-dim);
+    outline: 0;
+    padding: 2px 0;
+    min-width: 0;
+    width: 100%;
+    caret-color: var(--phosphor);
+  }
+  .burn-form input:focus { border-bottom-color: var(--phosphor); }
+  .burn-form .burn-btn { grid-column: auto; margin: 0; padding: 8px 12px; font-size: 11px; }
+  .burn-out {
+    grid-column: 1 / -1;
+    font-family: var(--mono);
+    font-size: 20px;
+    color: #ff3b6b;
+    min-height: 1.2em;
+    margin: 0;
+  }
+  .burn-form .field { grid-column: 1 / -1; display: grid; gap: 4px; }
+  .burn-form .amt-line { font-family: var(--mono); font-size: 20px; display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+  .burn-form .amt-line .amt { font-size: clamp(26px, 6vw, 32px); line-height: 1; text-shadow: 0 0 8px rgba(125,255,176,.45); }
+  .burn-form .amt-line #f-seat { color: var(--phosphor-dim); text-shadow: none; font-size: 18px; margin-left: auto; }
+  .burn-instr .actions { display: flex; justify-content: flex-end; }
+  .burn-instr .actions .burn-btn { margin: 0; padding: 8px 12px; font-size: 11px; }
+  .burn-note { font-family: var(--mono); font-size: 18px; color: #ffd166; }
+  .burn-form .actions { grid-column: 1 / -1; display: flex; justify-content: flex-end; }
+  .burn-form input.addr { font-size: 19px; letter-spacing: 0; }
+  .burn-form input.bad { border-bottom-color: #ff3b6b; }
+
+  .burn-instr {
+    margin-top: 18px;
+    border: 2px dotted var(--phosphor-dim);
+    padding: 14px;
+    display: grid;
+    gap: 10px;
+    font-family: var(--mono);
+    font-size: 20px;
+  }
+  .burn-instr .k {
+    font-family: var(--display);
+    font-size: 11px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--phosphor-dim);
+    display: block;
+    margin-bottom: 2px;
+  }
+  .burn-instr .amt { font-size: clamp(30px, 7vw, 38px); line-height: 1; text-shadow: 0 0 8px rgba(125,255,176,.45); }
+  .burn-instr .addr { word-break: break-all; font-size: 19px; letter-spacing: 0; }
+  .burn-instr .addr-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .copy-btn {
+    font-family: var(--display);
+    font-size: 10px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    background: transparent;
+    color: var(--phosphor);
+    border: 2px solid var(--phosphor-dim);
+    padding: 5px 8px;
+    cursor: pointer;
+    flex: none;
+  }
+  .copy-btn:hover, .copy-btn:focus-visible { border-color: var(--phosphor); outline: none; }
+  .burn-status {
+    font-family: var(--display);
+    font-size: 12px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--phosphor);
+    display: flex;
+    align-items: center;
+    gap: .5em;
+    margin-top: 4px;
+    text-shadow: 0 0 6px rgba(125,255,176,.45);
+  }
+  .burn-status.ok { color: var(--phosphor); }
+  .burn-status.bad { color: #ff3b6b; text-shadow: 0 0 6px rgba(255,59,107,.5); }
+  .burn-status .cursor { width: .55em; height: .9em; }
+  .burn-warn {
+    border: 3px solid #ff3b6b;
+    color: #ff3b6b;
+    font-family: var(--display);
+    font-size: 11px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    padding: 8px 10px;
+    text-shadow: 0 0 6px rgba(255,59,107,.5);
+  }
+  .burn-fallback { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: end; margin-top: 4px; }
+  .burn-fallback label { font-family: var(--display); font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--phosphor-dim); display: block; margin-bottom: 4px; }
+  .burn-fallback input { font-family: var(--mono); font-size: 18px; color: var(--phosphor); background: transparent; border: 0; border-bottom: 2px solid var(--phosphor-dim); outline: 0; padding: 2px 0; width: 100%; min-width: 0; letter-spacing: 0; caret-color: var(--phosphor); }
+  .burn-fallback input:focus { border-bottom-color: var(--phosphor); }
+  .burn-fallback .burn-btn { margin: 0; padding: 7px 10px; font-size: 10px; grid-column: auto; }
+  .burn-instr a { color: var(--phosphor); }
+  .link-btn {
+    background: none;
+    border: 0;
+    padding: 0;
+    font-family: var(--display);
+    font-size: 10px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--phosphor-dim);
+    cursor: pointer;
+    justify-self: start;
+  }
+  .link-btn:hover, .link-btn:focus-visible { color: var(--phosphor); outline: none; }
+
   .classified {
     display: inline-block;
     vertical-align: middle;
@@ -288,12 +507,27 @@
     display: block;
   }
 
-  .console {
+  .layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 28px;
+    width: 100%;
+    max-width: 1040px;
+    justify-items: center;
+    align-items: start;
+  }
+  .col {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 14px;
-    width: min(460px, 100%);
+    gap: 18px;
+    width: 100%;
+    min-width: 0;
+  }
+  .col.left { gap: 14px; }
+  @media (min-width: 900px) {
+    .layout { grid-template-columns: 1fr 1fr; align-items: center; column-gap: 48px; }
+    .col.right { gap: 22px; }
   }
   .countdown {
     font-family: var(--display);
@@ -394,6 +628,39 @@
     outline: none;
   }
 
+  .ca {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--display);
+    font-size: 11px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--phosphor-dim);
+    max-width: 100%;
+  }
+  .ca .addr {
+    font-family: var(--mono);
+    font-size: 18px;
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--phosphor);
+    word-break: break-all;
+  }
+  .ca .redact {
+    display: inline-block;
+    width: 22ch;
+    max-width: 50vw;
+    height: .8em;
+    background: var(--phosphor-dim);
+    background-image: radial-gradient(circle, rgba(7,8,7,.6) 1px, transparent 1.2px);
+    background-size: 3px 3px;
+    opacity: .6;
+  }
+  .ca .copy-btn { display: none; }
+  .ca.set .redact { display: none; }
+  .ca.set .copy-btn { display: inline-block; }
+
   .corner {
     position: fixed;
     bottom: 14px;
@@ -423,6 +690,8 @@
 
 </head>
 <body>
+<div class="layout">
+  <div class="col left">
 <main class="stack" aria-label="operation829 whitepaper folder">
   <div class="folder rear" id="rear" role="button" tabindex="0" aria-haspopup="dialog" aria-controls="dossier3" aria-label="Open dossier 03: the operation"></div>
   <div class="folder mid" id="mid" role="button" tabindex="0" aria-haspopup="dialog" aria-controls="dossier" aria-label="Open dossier 02: the QUBT thesis"></div>
@@ -443,18 +712,36 @@
     </svg>
   </div>
 </main>
-
-<section class="console" aria-label="terminal">
   <p class="terminal"><span class="prompt">&gt;</span> coming soon</p>
   <p class="countdown" id="countdown" aria-live="off">
     <span id="cd-h">00</span><span class="sep">:</span><span id="cd-m">00</span><span class="sep">:</span><span id="cd-s">00</span>
   </p>
-</section>
-
+  </div>
+  <div class="col right">
+  <div class="tranche" aria-label="tranche 01 status">
+    <div class="tranche-title"><span>Tranche 01</span><span class="state">sealed</span></div>
+    <span>seats</span>
+    <span class="val"><span class="seats" style="--fill:0%" aria-hidden="true"></span><span id="c-seats">000 / 829</span></span>
+    <span>entry</span>
+    <span class="val" id="c-entry">829 OP829</span>
+    <span>odds</span>
+    <span class="val" id="c-odds">1 in 8</span>
+    <span>burned</span>
+    <span class="val" id="c-burned">0 OP829</span>
+    <button class="burn-btn" id="burn-open" type="button" aria-haspopup="dialog" aria-controls="dossier-tranche">[ burn to enter ]</button>
+  </div>
+<div class="ca" id="ca">
+  <span>CA</span>
+  <span class="redact" id="ca-redact" aria-label="contract address pending"></span>
+  <span class="addr" id="ca-addr" hidden></span>
+  <button class="copy-btn" id="ca-copy" type="button">[ copy ]</button>
+</div>
 <a class="handle" href="https://x.com/operation829" target="_blank" rel="noopener" aria-label="operation829 on X">
   <svg viewBox="0 0 24 24" shape-rendering="crispEdges" aria-hidden="true"><path d="M18.9 2H22l-7.2 8.3L23 22h-6.6l-5.2-6.8L5.3 22H2.1l7.7-8.8L1.6 2h6.8l4.7 6.2L18.9 2zm-1.2 18h1.8L7.1 3.9H5.2L17.7 20z"/></svg>
   <span>@operation829</span>
 </a>
+  </div>
+</div>
 
 <a class="corner left" href="https://x.com/FortrisHQ" target="_blank" rel="noopener" aria-label="FortrisHQ on X">
   <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.9 2H22l-7.2 8.3L23 22h-6.6l-5.2-6.8L5.3 22H2.1l7.7-8.8L1.6 2h6.8l4.7 6.2L18.9 2zm-1.2 18h1.8L7.1 3.9H5.2L17.7 20z"/></svg>
@@ -548,6 +835,71 @@
   </div>
 </dialog>
 
+<dialog class="dossier dossier-term" id="dossier-tranche" aria-labelledby="tranche-title">
+  <div class="dossier-inner">
+    <div class="dossier-head">
+      <span class="tag">Tranche protocol</span>
+      <button class="dossier-close" id="dossier-tranche-close" type="button">[ close ]</button>
+    </div>
+    <h2 id="tranche-title">burn to enter. the vault does the rest.</h2>
+
+    <h3>how a tranche works</h3>
+    <ol>
+      <li><span>The Vault does not buy continuously. It buys in tranches: one scheduled purchase at a time, announced one epoch ahead, executed slowly, never reversed.</span></li>
+      <li><span>Every tranche has 829 seats. An entry costs 829 OP829, sent to the burn address. The burn is final whether or not you get a seat. Those tokens leave supply the moment they land.</span></li>
+      <li><span>Every entry is a roll. One roll in eight takes a seat. The roll is drawn from the hash of the block that carried your burn and the hash of the burn itself, so nobody chooses it: not you, not us. Anyone can recompute it. The tranche seals when the last seat goes.</span></li>
+      <li><span>When the tranche executes, what it captures is marked. Every sector that tranche takes carries the marks of the operatives who sat in it. The more tranches you sit in, the more of the map carries your mark.</span></li>
+      <li><span>Seats compound. Each one raises your clearance, and clearance is what opens cells. The operatives with the most sectors marked are the ones who were in the most tranches.</span></li>
+    </ol>
+
+    <h3>why burn</h3>
+    <p>A trade pays the tax and feeds the Vault. A burn pays nothing to anyone and feeds no one. It only removes. Entering a tranche is the one act in the operation that shrinks the float and puts your mark on what the Vault holds in the same move.</p>
+
+    <form class="burn-form" id="burn-form" autocomplete="off">
+      <div class="field">
+        <label>entry // one roll</label>
+        <div class="amt-line"><span class="amt" id="f-price">829</span> <span>OP829</span> <span class="amt" id="f-seat">seats left 829</span></div>
+      </div>
+      <div class="field">
+        <label for="burn-wallet">your wallet // the address the burn will come from</label>
+        <input id="burn-wallet" name="burn-wallet" class="addr" placeholder="0x" spellcheck="false" autocapitalize="off" maxlength="42">
+      </div>
+      <div class="actions"><button class="burn-btn" type="submit">[ enter ]</button></div>
+      <p class="burn-out" id="burn-out" aria-live="polite"></p>
+    </form>
+
+    <div class="burn-instr" id="burn-instr" hidden>
+      <div class="burn-warn" id="bi-demo-warn" hidden>demo // no token deployed // do not send anything</div>
+      <div><span class="k" id="bi-label">send exactly</span><span class="amt" id="bi-amount">0</span> <span>OP829</span></div>
+      <div class="burn-note" id="bi-note" hidden></div>
+      <div><span class="k">from</span><span class="addr" id="bi-from">0x</span></div>
+      <div>
+        <span class="k">to</span>
+        <div class="addr-row">
+          <span class="addr" id="bi-to">0x000000000000000000000000000000000000dead</span>
+          <button class="copy-btn" id="bi-copy" type="button">[ copy ]</button>
+        </div>
+      </div>
+      <div class="burn-status" id="bi-status" aria-live="polite"><span>waiting for verification</span><span class="cursor" aria-hidden="true"></span></div>
+      <div id="bi-result" hidden>
+        <span class="k">transaction</span><a class="addr" id="bi-tx" href="#" target="_blank" rel="noopener"></a>
+        <span class="k" style="margin-top:8px">roll</span><span class="addr" id="bi-roll"></span>
+      </div>
+      <div class="actions" id="bi-again" hidden><button class="burn-btn" id="bi-again-btn" type="button">[ enter again ]</button></div>
+      <div class="burn-fallback" id="bi-fallback">
+        <div>
+          <label for="bi-hash">already sent? paste the tx hash</label>
+          <input id="bi-hash" placeholder="0x" spellcheck="false" autocapitalize="off" maxlength="66">
+        </div>
+        <button class="burn-btn" id="bi-verify" type="button">[ verify ]</button>
+      </div>
+      <button class="link-btn" id="bi-cancel" type="button">[ cancel ]</button>
+    </div>
+
+    <p class="fine">Burning is irreversible. Tokens sent to the burn address cannot be recovered by anyone, including the operation, and a losing roll is still burned. A seat is a seat: not a share, not a yield, not a promise.</p>
+  </div>
+</dialog>
+
 <script>
   // The readout sits at zero. Swap BASE for real values if a countdown is ever wanted.
   var BASE = ['00', '00', '00'];
@@ -603,6 +955,338 @@
   }
   wireDossier('mid', 'dossier', 'dossier-close');
   wireDossier('rear', 'dossier3', 'dossier3-close');
+  wireDossier('burn-open', 'dossier-tranche', 'dossier-tranche-close');
+
+  // ---------------------------------------------------------------
+  // Burn-to-enter: fixed entry, random seat. Fill this in when live.
+  //   rpc:        JSON-RPC endpoint of the chain OP829 is deployed on
+  //   token:      OP829 contract address
+  //   explorerTx: block explorer URL prefix for a tx hash
+  //   startBlock: block the current tranche opened at
+  //   entry:      cost of one roll in whole OP829
+  //   odds:       one roll in `odds` takes a seat
+  //   seats:      seats per tranche
+  //   demo:       true = simulate the chain locally; never ship with this on
+  // While rpc or token is empty and demo is false, the form refuses to run.
+  //
+  // The roll for a burn is sha256(blockHash + txHash) read as a number.
+  // roll % odds == 0 wins. Block hash is unknown until the burn is mined,
+  // so the sender cannot grind for a winning hash before sending.
+  // ---------------------------------------------------------------
+  var BURN = {
+    rpc: '',
+    token: '',
+    explorerTx: '',
+    decimals: 18,
+    entry: '829',
+    odds: 8,
+    seats: 829,
+    startBlock: 0,
+    burnAddress: '0x000000000000000000000000000000000000dead',
+    demo: false
+  };
+  var TRANSFER_TOPIC = '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef';
+  var live = !!(BURN.rpc && BURN.token);
+
+  var burnForm = document.getElementById('burn-form');
+  var burnOut = document.getElementById('burn-out');
+  var burnWallet = document.getElementById('burn-wallet');
+  var instr = document.getElementById('burn-instr');
+  var biStatus = document.getElementById('bi-status');
+  var biResult = document.getElementById('bi-result');
+  var biTx = document.getElementById('bi-tx');
+  var biRoll = document.getElementById('bi-roll');
+  var biFallback = document.getElementById('bi-fallback');
+  var biHash = document.getElementById('bi-hash');
+  var biNote = document.getElementById('bi-note');
+  var biAgain = document.getElementById('bi-again');
+  var burnTyping = null;
+  var poll = null;
+
+  // --- helpers --------------------------------------------------------
+  function rpc(method, params) {
+    return fetch(BURN.rpc, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: method, params: params })
+    }).then(function (r) { return r.json(); }).then(function (j) {
+      if (j.error) throw new Error(j.error.message || 'rpc error');
+      return j.result;
+    });
+  }
+  function pad32(addr) { return '0x' + addr.toLowerCase().replace(/^0x/, '').padStart(64, '0'); }
+  function toUnits(amountStr) {
+    var parts = String(amountStr).split('.');
+    var whole = parts[0] || '0';
+    var frac = (parts[1] || '').slice(0, BURN.decimals).padEnd(BURN.decimals, '0');
+    return BigInt(whole + frac);
+  }
+  function fmtUnits(big) {
+    var str = big.toString().padStart(BURN.decimals + 1, '0');
+    var w = str.slice(0, -BURN.decimals), f = str.slice(-BURN.decimals).replace(/0+$/, '');
+    w = w.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    return f ? w + '.' + f : w;
+  }
+  function isAddr(a) { return /^0x[0-9a-fA-F]{40}$/.test(a); }
+  function isHash(h) { return /^0x[0-9a-fA-F]{64}$/.test(h); }
+  function pad3(n) { return String(n).padStart(3, '0'); }
+  async function sha256Hex(str) {
+    var buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+    return Array.from(new Uint8Array(buf)).map(function (b) { return b.toString(16).padStart(2, '0'); }).join('');
+  }
+  // The roll: sha256 of blockHash+txHash (lowercase hex, 0x kept), first 8 bytes as a number, mod odds.
+  async function rollFor(blockHash, txHash) {
+    var h = await sha256Hex(blockHash.toLowerCase() + txHash.toLowerCase());
+    var n = BigInt('0x' + h.slice(0, 16));
+    return { n: n, hash: h, win: n % BigInt(BURN.odds) === 0n };
+  }
+  function burnSay(text) {
+    clearInterval(burnTyping);
+    if (reduce) { burnOut.textContent = text; return; }
+    var i = 0;
+    burnOut.textContent = '';
+    burnTyping = setInterval(function () {
+      burnOut.textContent = text.slice(0, ++i);
+      if (i >= text.length) clearInterval(burnTyping);
+    }, 24);
+  }
+  function setStatus(text, cls, blink) {
+    biStatus.className = 'burn-status' + (cls ? ' ' + cls : '');
+    biStatus.innerHTML = '';
+    var t = document.createElement('span');
+    t.textContent = text;
+    biStatus.appendChild(t);
+    if (blink) {
+      var c = document.createElement('span');
+      c.className = 'cursor';
+      c.setAttribute('aria-hidden', 'true');
+      biStatus.appendChild(c);
+    }
+  }
+
+  // --- the ledger -----------------------------------------------------
+  // Replay every burn to the dead address since the tranche opened, in
+  // chain order. Each burn of at least `entry` is one roll. Winning rolls
+  // take seats until the tranche is full.
+  var entryUnits = toUnits(BURN.entry);
+  var ledger = null;
+  var demoLogs = [];
+  var rollCache = {};
+
+  async function replay(logs) {
+    logs = logs.slice().sort(function (a, b) {
+      var ba = parseInt(a.blockNumber, 16), bb = parseInt(b.blockNumber, 16);
+      return ba !== bb ? ba - bb : parseInt(a.logIndex, 16) - parseInt(b.logIndex, 16);
+    });
+    var L = { seats: 0, rolls: 0, burned: 0n, entries: [], byWallet: {} };
+    for (var i = 0; i < logs.length; i++) {
+      var l = logs[i];
+      var w = l.topics[1].toLowerCase();
+      var v = BigInt(l.data);
+      L.burned += v;
+      if (v < entryUnits) continue;                      // short burns are burned, not rolled
+      var key = l.transactionHash + ':' + l.logIndex;
+      if (!rollCache[key]) rollCache[key] = await rollFor(l.blockHash, l.transactionHash);
+      var r = rollCache[key];
+      var won = r.win && L.seats < BURN.seats;
+      if (won) L.seats += 1;
+      L.rolls += 1;
+      var e = { wallet: w, tx: l.transactionHash, block: l.blockHash, roll: r, seat: won ? L.seats : 0 };
+      L.entries.push(e);
+      if (!L.byWallet[w]) L.byWallet[w] = [];
+      L.byWallet[w].push(e);
+    }
+    return L;
+  }
+  async function fetchLogs() {
+    if (!live) return demoLogs;
+    return rpc('eth_getLogs', [{
+      fromBlock: '0x' + BURN.startBlock.toString(16), toBlock: 'latest',
+      address: BURN.token, topics: [TRANSFER_TOPIC, null, pad32(BURN.burnAddress)]
+    }]);
+  }
+  async function refresh() {
+    try { ledger = await replay(await fetchLogs()); }
+    catch (e) { if (!ledger) ledger = await replay([]); }
+    paintConsole();
+    return ledger;
+  }
+  function sealed() { return ledger.seats >= BURN.seats; }
+
+  function paintConsole() {
+    var pct = Math.min(100, ledger.seats / BURN.seats * 100);
+    document.querySelector('.tranche .seats').style.setProperty('--fill', pct + '%');
+    document.getElementById('c-seats').textContent = pad3(ledger.seats) + ' / ' + BURN.seats;
+    document.getElementById('c-entry').textContent = fmtUnits(entryUnits) + ' OP829';
+    document.getElementById('c-odds').textContent = '1 in ' + BURN.odds;
+    document.getElementById('c-burned').textContent = fmtUnits(ledger.burned) + ' OP829';
+    var state = document.querySelector('.tranche-title .state');
+    state.textContent = sealed() ? 'sealed' : (live ? 'open' : (BURN.demo ? 'demo' : 'sealed'));
+    state.style.color = (live && !sealed()) ? 'var(--phosphor)' : '';
+    document.getElementById('f-price').textContent = fmtUnits(entryUnits);
+    document.getElementById('f-seat').textContent = sealed() ? 'tranche sealed' : 'seats left ' + (BURN.seats - ledger.seats);
+  }
+
+  // --- flow -----------------------------------------------------------
+  var pending = null;   // { wallet, rollsBefore, startedAt }
+
+  function showInstr(wallet) {
+    document.getElementById('bi-amount').textContent = fmtUnits(entryUnits);
+    document.getElementById('bi-label').textContent = 'send exactly';
+    document.getElementById('bi-from').textContent = wallet;
+    document.getElementById('bi-to').textContent = BURN.burnAddress;
+    document.getElementById('bi-demo-warn').hidden = !BURN.demo;
+    biNote.hidden = true;
+    biResult.hidden = true;
+    biAgain.hidden = true;
+    biFallback.hidden = false;
+    setStatus('waiting for verification', '', true);
+    burnForm.hidden = true;
+    instr.hidden = false;
+  }
+  function checkPending() {
+    if (!pending) return false;
+    var mine = ledger.byWallet[pad32(pending.wallet)] || [];
+    if (mine.length > pending.rollsBefore) {
+      settle(mine[mine.length - 1]);
+      return true;
+    }
+    return false;
+  }
+  function settle(e) {
+    clearInterval(poll); poll = null;
+    var seatsHeld = (ledger.byWallet[e.wallet] || []).filter(function (x) { return x.seat; }).length;
+    if (e.seat) {
+      setStatus('seat ' + pad3(e.seat) + ' claimed // ' + seatsHeld + ' on this wallet', 'ok', false);
+    } else if (e.roll.win) {
+      setStatus('winning roll // but the tranche was already sealed', 'bad', false);
+    } else {
+      setStatus('no seat this roll', 'bad', false);
+    }
+    biTx.textContent = e.tx;
+    biTx.href = BURN.explorerTx ? BURN.explorerTx + e.tx : '#';
+    biRoll.textContent = 'sha256(block + tx) = ' + e.roll.hash.slice(0, 16) + '… // ' + (e.roll.n % BigInt(BURN.odds)).toString() + ' of ' + BURN.odds + (e.roll.win ? ' // hit' : ' // miss');
+    biResult.hidden = false;
+    biFallback.hidden = true;
+    biAgain.hidden = sealed();
+    biNote.hidden = !sealed();
+    if (sealed()) biNote.textContent = 'tranche 01 is sealed. every seat is taken.';
+    pending = null;
+  }
+  function failed(text) { setStatus(text, 'bad', false); }
+
+  function startPolling() {
+    clearInterval(poll);
+    poll = setInterval(async function () {
+      if (!pending) { clearInterval(poll); poll = null; return; }
+      if (Date.now() - pending.startedAt > 45 * 60 * 1000) {
+        clearInterval(poll); poll = null;
+        failed('timed out // paste the tx hash to verify');
+        return;
+      }
+      await refresh();
+      checkPending();
+    }, 12000);
+  }
+
+  async function verifyByHash(hash) {
+    if (!pending) return;
+    if (!isHash(hash)) { failed('that is not a transaction hash'); return; }
+    setStatus('checking transaction', '', true);
+    if (BURN.demo) { demoBurn(pending.wallet, entryUnits, hash); await refresh(); checkPending(); return; }
+    try {
+      var rcpt = await rpc('eth_getTransactionReceipt', [hash]);
+      if (!rcpt) { failed('not found yet // still pending or wrong chain'); return; }
+      if (rcpt.status !== '0x1') { failed('transaction reverted'); return; }
+      var mine = (rcpt.logs || []).find(function (l) {
+        return l.address.toLowerCase() === BURN.token.toLowerCase() && l.topics[0] === TRANSFER_TOPIC &&
+          l.topics[1] === pad32(pending.wallet) && l.topics[2] === pad32(BURN.burnAddress);
+      });
+      if (!mine) { failed('no burn from your wallet in that transaction'); return; }
+      if (BigInt(mine.data) < entryUnits) { failed('burn is under the entry // it does not roll'); return; }
+      await refresh();
+      if (!checkPending()) failed('burn seen but not in the ledger yet // try again in a moment');
+    } catch (e) { failed('could not reach the chain // try again'); }
+  }
+
+  // Demo: fabricate a burn log with a random block hash, as the chain would.
+  function randHex(bytes) {
+    var a = new Uint8Array(bytes); crypto.getRandomValues(a);
+    return '0x' + Array.from(a).map(function (b) { return b.toString(16).padStart(2, '0'); }).join('');
+  }
+  function demoBurn(wallet, units, hash) {
+    demoLogs.push({
+      blockNumber: '0x' + (1000 + demoLogs.length).toString(16), logIndex: '0x0',
+      blockHash: randHex(32),
+      address: BURN.token || '0xdemo', topics: [TRANSFER_TOPIC, pad32(wallet), pad32(BURN.burnAddress)],
+      data: '0x' + units.toString(16), transactionHash: hash || randHex(32)
+    });
+  }
+
+  function begin(wallet) {
+    pending = { wallet: wallet, rollsBefore: (ledger.byWallet[pad32(wallet)] || []).length, startedAt: Date.now() };
+    showInstr(wallet);
+    if (live) startPolling();
+    else if (BURN.demo) setTimeout(async function () {
+      if (!pending) return;
+      demoBurn(pending.wallet, entryUnits);
+      await refresh();
+      checkPending();
+    }, 5000);
+  }
+
+  burnForm.addEventListener('submit', async function (e) {
+    e.preventDefault();
+    var wallet = burnWallet.value.trim();
+    burnWallet.classList.remove('bad');
+    if (!isAddr(wallet)) { burnWallet.classList.add('bad'); burnSay('> that is not a wallet address.'); return; }
+    if (!live && !BURN.demo) { burnSay('> tranche 01 is sealed. no token contract yet. do not send anything.'); return; }
+    await refresh();
+    if (sealed()) { burnSay('> tranche 01 is sealed. no seats left.'); return; }
+    begin(wallet);
+  });
+  document.getElementById('bi-again-btn').addEventListener('click', function () {
+    var wallet = document.getElementById('bi-from').textContent;
+    if (sealed()) return;
+    begin(wallet);
+  });
+
+  document.getElementById('bi-copy').addEventListener('click', function () {
+    var btn = this;
+    navigator.clipboard.writeText(BURN.burnAddress).then(function () {
+      btn.textContent = '[ copied ]';
+      setTimeout(function () { btn.textContent = '[ copy ]'; }, 1500);
+    }).catch(function () {});
+  });
+  document.getElementById('bi-verify').addEventListener('click', function () { verifyByHash(biHash.value.trim()); });
+  biHash.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); verifyByHash(biHash.value.trim()); } });
+  document.getElementById('bi-cancel').addEventListener('click', function () {
+    clearInterval(poll); poll = null; pending = null;
+    instr.hidden = true;
+    burnForm.hidden = false;
+    burnOut.textContent = '';
+    paintConsole();
+  });
+
+  // Contract address line. Set BURN.token and this fills itself in.
+  (function paintCA() {
+    var box = document.getElementById('ca');
+    var addr = document.getElementById('ca-addr');
+    if (BURN.token && isAddr(BURN.token)) {
+      addr.textContent = BURN.token;
+      addr.hidden = false;
+      box.classList.add('set');
+      document.getElementById('ca-copy').addEventListener('click', function () {
+        var btn = this;
+        navigator.clipboard.writeText(BURN.token).then(function () {
+          btn.textContent = '[ copied ]';
+          setTimeout(function () { btn.textContent = '[ copy ]'; }, 1500);
+        }).catch(function () {});
+      });
+    }
+  })();
+
+  refresh();
 
   // Console breadcrumb for the people who look.
   console.log('%c829', 'font-family:monospace;font-size:40px;color:#34a466');
