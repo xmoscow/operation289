@@ -44,7 +44,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 40px;
+    gap: 28px;
     overflow-x: hidden;
   }
 
@@ -345,47 +345,6 @@
     100% { transform: translate(3px, -1px); clip-path: inset(40% 0 0 0); }
   }
   .countdown .sep { color: var(--phosphor-dim); animation: blink 1s steps(1) infinite; }
-  .row {
-    display: flex;
-    align-items: center;
-    gap: .35em;
-    font-family: var(--display);
-    font-size: clamp(14px, 3.8vw, 20px);
-    letter-spacing: .12em;
-    text-transform: uppercase;
-    color: var(--phosphor);
-    width: 100%;
-    justify-content: center;
-    min-height: 2.4em;
-    cursor: text;
-  }
-  .row .prompt { color: var(--phosphor-dim); }
-  .row input {
-    font: inherit;
-    letter-spacing: inherit;
-    text-transform: inherit;
-    color: var(--phosphor);
-    background: transparent;
-    border: 0;
-    outline: 0;
-    padding: 0;
-    width: 1ch;
-    min-width: 1ch;
-    caret-color: var(--phosphor);
-    text-shadow: 0 0 6px rgba(125,255,176,.55);
-  }
-  .row:focus-within .cursor, .row.filled .cursor { display: none; }
-  .output {
-    font-family: var(--mono);
-    font-size: 22px;
-    letter-spacing: .04em;
-    color: var(--phosphor-dim);
-    text-align: center;
-    margin: 0;
-    min-height: 1.2em;
-    text-wrap: balance;
-  }
-  .output.granted { color: var(--phosphor); text-shadow: 0 0 8px rgba(125,255,176,.6); }
   .terminal {
     font-family: var(--display);
     font-size: clamp(14px, 3.8vw, 20px);
@@ -490,12 +449,6 @@
   <p class="countdown" id="countdown" aria-live="off">
     <span id="cd-h">00</span><span class="sep">:</span><span id="cd-m">00</span><span class="sep">:</span><span id="cd-s">00</span>
   </p>
-  <form class="row" id="gate" autocomplete="off">
-    <span class="prompt">&gt;</span>
-    <input id="passphrase" name="passphrase" aria-label="passphrase" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="32">
-    <span class="cursor" aria-hidden="true"></span>
-  </form>
-  <p class="output" id="output" aria-live="polite"></p>
 </section>
 
 <a class="handle" href="https://x.com/operation829" target="_blank" rel="noopener" aria-label="operation829 on X">
@@ -598,11 +551,6 @@
 <script>
   // The readout sits at zero. Swap BASE for real values if a countdown is ever wanted.
   var BASE = ['00', '00', '00'];
-  // SHA-256 of the passphrase, lowercased and trimmed. Generate a new one with:
-  //   printf 'yourphrase' | shasum -a 256
-  var KEY = '2568aaa204dd2d1b66f7f2f7887bc0bc727974a348d18ecbb77354aa74a93968';
-  var GRANTED = 'access granted // level 1 // the counter starts when the file opens.';
-  var DENIED  = ['access denied', 'access denied', 'access denied // attempt logged'];
 
   var cd = document.getElementById('countdown');
   var cells = ['cd-h', 'cd-m', 'cd-s'].map(function (id) { return document.getElementById(id); });
@@ -637,49 +585,6 @@
       setTimeout(function () { glitch(); loop(); }, 1400 + Math.random() * 3800);
     })();
   }
-  var out = document.getElementById('output');
-  var typing = null;
-  function say(text, ok) {
-    clearInterval(typing);
-    out.className = 'output' + (ok ? ' granted' : '');
-    if (reduce) { out.textContent = text; return; }
-    var i = 0;
-    out.textContent = '';
-    typing = setInterval(function () {
-      out.textContent = text.slice(0, ++i);
-      if (i >= text.length) clearInterval(typing);
-    }, 28);
-  }
-
-  async function sha256(str) {
-    var buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
-    return Array.from(new Uint8Array(buf)).map(function (b) { return b.toString(16).padStart(2, '0'); }).join('');
-  }
-
-  var gate = document.getElementById('gate');
-  var field = document.getElementById('passphrase');
-  var attempts = 0;
-  function fit() {
-    gate.classList.toggle('filled', field.value.length > 0);
-    field.style.width = Math.max(1, field.value.length + 1) + 'ch';
-  }
-  field.addEventListener('input', fit);
-  gate.addEventListener('click', function () { field.focus(); });
-  gate.addEventListener('submit', async function (e) {
-    e.preventDefault();
-    var guess = field.value.trim().toLowerCase();
-    if (!guess) return;
-    var hash = crypto.subtle ? await sha256(guess) : '';
-    if (hash === KEY) {
-      say(GRANTED, true);
-      gate.hidden = true;
-    } else {
-      say(DENIED[Math.min(attempts, DENIED.length - 1)], false);
-      attempts++;
-      field.value = '';
-      fit();
-    }
-  });
   // Folders open dossiers: cream = 02 the thesis, blue = 03 the operation.
   function wireDossier(folderId, dialogId, closeId) {
     var folder = document.getElementById(folderId);
