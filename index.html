@@ -316,7 +316,7 @@
 <section class="console" aria-label="terminal">
   <p class="terminal"><span class="prompt">&gt;</span> coming soon</p>
   <p class="countdown" id="countdown" aria-live="off">
-    <span id="cd-d">--</span><span class="sep">:</span><span id="cd-h">--</span><span class="sep">:</span><span id="cd-m">--</span><span class="sep">:</span><span id="cd-s">--</span>
+    <span id="cd-h">00</span><span class="sep">:</span><span id="cd-m">00</span><span class="sep">:</span><span id="cd-s">00</span>
   </p>
   <form class="row" id="gate" autocomplete="off">
     <span class="prompt">&gt;</span>
@@ -329,27 +329,21 @@
 <a class="handle" href="https://x.com/operation829" target="_blank" rel="noopener">@operation829</a>
 
 <script>
-  // Change the target here. ISO string, UTC. 13:30Z is 9:30 ET, market open.
-  var TARGET = new Date('2026-10-29T13:30:00Z');
+  // The readout sits at zero. Swap BASE for real values if a countdown is ever wanted.
+  var BASE = ['00', '00', '00'];
   // SHA-256 of the passphrase, lowercased and trimmed. Generate a new one with:
   //   printf 'yourphrase' | shasum -a 256
   var KEY = '2568aaa204dd2d1b66f7f2f7887bc0bc727974a348d18ecbb77354aa74a93968';
-  var GRANTED = 'access granted // level 1 // the file opens when the counter hits zero.';
+  var GRANTED = 'access granted // level 1 // the counter starts when the file opens.';
   var DENIED  = ['access denied', 'access denied', 'access denied // attempt logged'];
 
-  var pad = function (n) { return String(n).padStart(2, '0'); };
   var cd = document.getElementById('countdown');
-  var cells = ['cd-d', 'cd-h', 'cd-m', 'cd-s'].map(function (id) { return document.getElementById(id); });
+  var cells = ['cd-h', 'cd-m', 'cd-s'].map(function (id) { return document.getElementById(id); });
   function tick() {
-    var ms = TARGET - Date.now();
-    if (ms < 0) ms = 0;
-    var s = Math.floor(ms / 1000);
-    var parts = [pad(Math.floor(s / 86400)), pad(Math.floor(s / 3600) % 24), pad(Math.floor(s / 60) % 60), pad(s % 60)];
-    cells.forEach(function (el, i) { el.textContent = parts[i]; });
-    cd.dataset.text = parts.join(':');
+    cells.forEach(function (el, i) { el.textContent = BASE[i]; });
+    cd.dataset.text = BASE.join(':');
   }
   tick();
-  setInterval(tick, 1000);
 
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
