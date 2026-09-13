@@ -115,14 +115,34 @@
            display: flex; flex-direction: column;
            padding: 6% 7% 7%; }
 
-  .mid {
+  .mid, .rear {
     cursor: pointer;
     transition: transform .15s steps(3);
   }
   .mid:hover, .mid:focus-visible { transform: translate(10px, -6px); outline: none; }
-  .mid:focus-visible { box-shadow: 0 0 0 3px var(--phosphor); }
-  .stack:has(.mid:hover) .front { transform: translateX(-4px); }
+  .rear:hover, .rear:focus-visible { transform: translate(14px, -10px); outline: none; }
+  .mid:focus-visible, .rear:focus-visible { box-shadow: 0 0 0 3px var(--phosphor); }
+  .stack:has(.mid:hover) .front, .stack:has(.rear:hover) .front { transform: translateX(-4px); }
+  .stack:has(.rear:hover) .mid { transform: translateX(-2px); }
   .front { transition: transform .15s steps(3); }
+
+  .dossier.dossier-blue { background: var(--blue); color: #eef0ff; border-color: var(--blue-ink); }
+  .dossier.dossier-blue .dossier-inner { background-image: radial-gradient(circle, rgba(0,0,0,.18) 1px, transparent 1.2px); }
+  .dossier.dossier-blue .dossier-head { border-color: #eef0ff; }
+  .dossier.dossier-blue .dossier-close { border-color: #eef0ff; color: #eef0ff; }
+  .dossier.dossier-blue .dossier-close:hover, .dossier-blue .dossier-close:focus-visible { background: #eef0ff; color: var(--blue-ink); }
+  .dossier.dossier-blue td { border-color: #eef0ff; }
+  .dossier.dossier-blue .fine { color: #c3c8ff; }
+  .dossier.dossier-blue .stamp { border-color: #ffd166; color: #ffd166; }
+  .dossier.dossier-blue .lead { font-size: clamp(22px, 5.2vw, 26px); }
+  .classified {
+    display: inline-block;
+    vertical-align: middle;
+    height: .8em;
+    background: var(--blue-ink);
+    background-image: radial-gradient(circle, rgba(238,240,255,.25) 1px, transparent 1.2px);
+    background-size: 3px 3px;
+  }
 
   .dossier {
     border: 3px solid var(--cream-ink);
@@ -445,7 +465,7 @@
 </head>
 <body>
 <main class="stack" aria-label="operation829 whitepaper folder">
-  <div class="folder rear" aria-hidden="true"></div>
+  <div class="folder rear" id="rear" role="button" tabindex="0" aria-haspopup="dialog" aria-controls="dossier3" aria-label="Open dossier 03: the operation"></div>
   <div class="folder mid" id="mid" role="button" tabindex="0" aria-haspopup="dialog" aria-controls="dossier" aria-label="Open dossier 02: the QUBT thesis"></div>
   <div class="folder front">
     <h1 class="question">Can a gamefi experiment short squeeze a stock?</h1>
@@ -535,6 +555,46 @@
   </div>
 </dialog>
 
+<dialog class="dossier dossier-blue" id="dossier3" aria-labelledby="dossier3-title">
+  <div class="dossier-inner">
+    <div class="dossier-head">
+      <span class="tag">Dossier 03 // the operation</span>
+      <button class="dossier-close" id="dossier3-close" type="button">[ close ]</button>
+    </div>
+    <h2 id="dossier3-title">829 is not a token you hold. it is a position you keep.</h2>
+    <p class="lead">The operation is a closed economy. Every path through it either burns OP829 or feeds the Vault. There is no third path.</p>
+
+    <h3>01 // clearance</h3>
+    <p>Entry is by clearance, not by purchase. A clearance is bound to the operative who earns it and cannot be sold. Clearance windows open on a schedule the operation sets, price themselves against demand, and close without warning. What a window collects, the Vault keeps.</p>
+
+    <h3>02 // cells</h3>
+    <p>A clearance opens one cell. Cells earn. Operatives grow by opening more cells, and the cost of the next cell is paid in OP829 that never returns to circulation. The most rational move inside the operation, growing your position, permanently shrinks the float.</p>
+    <p>How much a cell earns is set by <span class="classified" style="width:38%"></span> and published one epoch late.</p>
+
+    <h3>03 // epochs</h3>
+    <p>The operation runs on epochs keyed to a calendar nobody here controls. When the operation grows, it accumulates. When it contracts, it defends. It turns defensive faster than it turns generous, and it reads two epochs back before it decides anything.</p>
+
+    <h3>04 // extraction</h3>
+    <p>Leaving is allowed. Leaving is priced. The price rises with how many leave at once, and half of what leavers pay goes to the operatives who stayed. A run on the operation pays the ones who did not run.</p>
+
+    <h3>05 // dormancy</h3>
+    <p>Silent positions are reclaimed. Activity is free and any action resets the clock. Whoever reports a dormant cell is paid for the report. <span class="classified" style="width:52%"></span></p>
+
+    <h3>06 // the vault</h3>
+    <p>Everything above feeds one thing. The Vault accumulates. The Vault does not sell. What it holds is public. What it does next is <span class="classified" style="width:30%"></span></p>
+
+    <table aria-label="sealed parameters">
+      <tr><td>clearance window 01</td><td><span class="classified" style="width:5ch"></span></td></tr>
+      <tr><td>cell yield curve</td><td><span class="classified" style="width:7ch"></span></td></tr>
+      <tr><td>extraction floor / ceiling</td><td><span class="classified" style="width:8ch"></span></td></tr>
+      <tr><td>dormancy clock</td><td><span class="classified" style="width:6ch"></span></td></tr>
+    </table>
+
+    <span class="stamp">classified // specifications sealed</span>
+    <p class="fine">Specifications are sealed until clearance window 01. Nothing here is an offer, a promise of yield, or a description of a finished system. The operation is code. The code is not done.</p>
+  </div>
+</dialog>
+
 <script>
   // The readout sits at zero. Swap BASE for real values if a countdown is ever wanted.
   var BASE = ['00', '00', '00'];
@@ -620,22 +680,24 @@
       fit();
     }
   });
-  // Dossier 02: the cream folder opens the thesis.
-  var mid = document.getElementById('mid');
-  var dossier = document.getElementById('dossier');
-  function openDossier() {
-    if (typeof dossier.showModal === 'function') dossier.showModal();
-    else dossier.setAttribute('open', '');
-    dossier.querySelector('.dossier-inner').scrollTop = 0;
+  // Folders open dossiers: cream = 02 the thesis, blue = 03 the operation.
+  function wireDossier(folderId, dialogId, closeId) {
+    var folder = document.getElementById(folderId);
+    var dlg = document.getElementById(dialogId);
+    function open() {
+      if (typeof dlg.showModal === 'function') dlg.showModal();
+      else dlg.setAttribute('open', '');
+      dlg.querySelector('.dossier-inner').scrollTop = 0;
+    }
+    folder.addEventListener('click', open);
+    folder.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); }
+    });
+    document.getElementById(closeId).addEventListener('click', function () { dlg.close(); });
+    dlg.addEventListener('click', function (e) { if (e.target === dlg) dlg.close(); });  // backdrop click
   }
-  mid.addEventListener('click', openDossier);
-  mid.addEventListener('keydown', function (e) {
-    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openDossier(); }
-  });
-  document.getElementById('dossier-close').addEventListener('click', function () { dossier.close(); });
-  dossier.addEventListener('click', function (e) {
-    if (e.target === dossier) dossier.close();   // click on the dark backdrop
-  });
+  wireDossier('mid', 'dossier', 'dossier-close');
+  wireDossier('rear', 'dossier3', 'dossier3-close');
 
   // Console breadcrumb for the people who look.
   console.log('%c829', 'font-family:monospace;font-size:40px;color:#34a466');
