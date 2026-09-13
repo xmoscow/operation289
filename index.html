@@ -1,0 +1,427 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Can a gamefi experiment short squeeze a stock? Coming soon.">
+<meta property="og:title" content="operation829">
+<meta property="og:description" content="Can a gamefi experiment short squeeze a stock? Coming soon.">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:site" content="@operation829">
+<meta name="color-scheme" content="dark">
+<title>operation829</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=VT323&display=swap">
+<style>
+  :root {
+    --crt: #070807;
+    --phosphor: #7dffb0;
+    --phosphor-dim: #3f9a66;
+    --green: #34a466;
+    --green-deep: #238a51;
+    --ink: #0c2e1c;
+    --blue: #3d4fd8;
+    --blue-ink: #1a2470;
+    --cream: #e4e6dc;
+    --cream-ink: #6a6c62;
+    --bleed: #6b1a3a;
+    --display: 'Silkscreen', 'Press Start 2P', monospace;
+    --mono: 'VT323', 'Courier New', monospace;
+  }
+
+  html { background: var(--crt); }
+  [hidden] { display: none !important; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: radial-gradient(ellipse at 50% 45%, #0f120f 0%, var(--crt) 62%, #000 100%);
+    color: var(--phosphor);
+    font-family: var(--mono);
+    padding-block: 48px 40px;
+    padding-inline: 20px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 40px;
+    overflow-x: hidden;
+  }
+
+  /* scanlines + soft flicker */
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background:
+      repeating-linear-gradient(0deg, rgba(0,0,0,.42) 0 2px, transparent 2px 4px),
+      radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,.55) 100%);
+    z-index: 10;
+    animation: flicker 6s infinite steps(1);
+  }
+  @keyframes flicker {
+    0%, 94%, 100% { opacity: 1; }
+    95% { opacity: .82; }
+    96% { opacity: 1; }
+    98% { opacity: .9; }
+  }
+
+  .stack {
+    position: relative;
+    width: min(460px, 100%, 52vh);
+    aspect-ratio: 400 / 480;
+    flex: none;
+    filter: drop-shadow(4px 5px 0 var(--bleed));
+    image-rendering: pixelated;
+  }
+  .folder {
+    position: absolute;
+    border: 3px solid var(--edge);
+    background-color: var(--fill);
+    background-image: radial-gradient(circle, rgba(0,0,0,.22) 1px, transparent 1.2px);
+    background-size: 3px 3px;
+    box-sizing: border-box;
+  }
+  .folder::before {            /* tab */
+    content: "";
+    position: absolute;
+    top: -21px;
+    left: var(--tab-left);
+    width: var(--tab-width);
+    height: 21px;
+    background-color: var(--fill);
+    background-image: inherit;
+    background-size: inherit;
+    border: 3px solid var(--edge);
+    border-bottom: 0;
+    box-sizing: border-box;
+  }
+  .folder::after {             /* covers seam between tab and body */
+    content: "";
+    position: absolute;
+    top: -3px;
+    left: calc(var(--tab-left) + 0px);
+    width: var(--tab-width);
+    height: 3px;
+    background: var(--fill);
+  }
+  .rear  { --fill: var(--blue);  --edge: var(--blue-ink);  --tab-left: 52%; --tab-width: 36%;
+           inset: 8% 0 6% 20%; }
+  .mid   { --fill: var(--cream); --edge: var(--cream-ink); --tab-left: 30%; --tab-width: 34%;
+           inset: 8% 6% 4% 12%; }
+  .front { --fill: var(--green); --edge: var(--ink);       --tab-left: 6%;  --tab-width: 40%;
+           inset: 12% 14% 0 0;
+           display: flex; flex-direction: column;
+           padding: 6% 7% 7%; }
+
+  .question {
+    margin: auto 0;
+    font-family: var(--mono);
+    font-variant-ligatures: none;
+    font-size: clamp(30px, 8.6vw, 42px);
+    line-height: .95;
+    color: var(--ink);
+    text-wrap: balance;
+    max-width: 11ch;
+    text-transform: lowercase;
+  }
+  .redacted {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    margin: 0 0 6%;
+  }
+  .redacted span {
+    display: block;
+    height: 11px;
+    background: var(--ink);
+    background-image: radial-gradient(circle, rgba(52,164,102,.35) 1px, transparent 1.2px);
+    background-size: 3px 3px;
+  }
+  .redacted span:nth-child(1) { width: 78%; }
+  .redacted span:nth-child(2) { width: 91%; }
+  .redacted span:nth-child(3) { width: 46%; }
+  .badge {
+    align-self: flex-end;
+    width: clamp(90px, 30%, 120px);
+    height: auto;
+    display: block;
+  }
+
+  .console {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    width: min(460px, 100%);
+  }
+  .countdown {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: clamp(22px, 7vw, 36px);
+    letter-spacing: .06em;
+    color: var(--phosphor);
+    text-shadow: 0 0 10px rgba(125,255,176,.6);
+    font-variant-numeric: tabular-nums;
+    margin: 0;
+    position: relative;
+    white-space: nowrap;
+  }
+  .countdown::before, .countdown::after {
+    content: attr(data-text);
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    pointer-events: none;
+    text-shadow: none;
+  }
+  .countdown.glitching { animation: skew .28s steps(3) infinite; }
+  .countdown.glitching::before {
+    opacity: .85;
+    color: #ff3b6b;
+    clip-path: inset(0 0 52% 0);
+    animation: slice-a .18s steps(2) infinite;
+  }
+  .countdown.glitching::after {
+    opacity: .85;
+    color: #2ee6ff;
+    clip-path: inset(48% 0 0 0);
+    animation: slice-b .22s steps(2) infinite;
+  }
+  @keyframes skew {
+    0% { transform: skewX(0); }
+    33% { transform: skewX(-6deg) translateX(2px); }
+    66% { transform: skewX(4deg) translateX(-3px); }
+    100% { transform: skewX(0); }
+  }
+  @keyframes slice-a {
+    0% { transform: translate(-4px, 0); clip-path: inset(0 0 52% 0); }
+    50% { transform: translate(5px, -2px); clip-path: inset(18% 0 40% 0); }
+    100% { transform: translate(-3px, 1px); clip-path: inset(0 0 60% 0); }
+  }
+  @keyframes slice-b {
+    0% { transform: translate(4px, 0); clip-path: inset(48% 0 0 0); }
+    50% { transform: translate(-5px, 2px); clip-path: inset(62% 0 8% 0); }
+    100% { transform: translate(3px, -1px); clip-path: inset(40% 0 0 0); }
+  }
+  .countdown .sep { color: var(--phosphor-dim); animation: blink 1s steps(1) infinite; }
+  .row {
+    display: flex;
+    align-items: center;
+    gap: .35em;
+    font-family: var(--display);
+    font-size: clamp(14px, 3.8vw, 20px);
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--phosphor);
+    width: 100%;
+    justify-content: center;
+    min-height: 2.4em;
+    cursor: text;
+  }
+  .row .prompt { color: var(--phosphor-dim); }
+  .row input {
+    font: inherit;
+    letter-spacing: inherit;
+    text-transform: inherit;
+    color: var(--phosphor);
+    background: transparent;
+    border: 0;
+    outline: 0;
+    padding: 0;
+    width: 1ch;
+    min-width: 1ch;
+    caret-color: var(--phosphor);
+    text-shadow: 0 0 6px rgba(125,255,176,.55);
+  }
+  .row:focus-within .cursor, .row.filled .cursor { display: none; }
+  .output {
+    font-family: var(--mono);
+    font-size: 22px;
+    letter-spacing: .04em;
+    color: var(--phosphor-dim);
+    text-align: center;
+    margin: 0;
+    min-height: 1.2em;
+    text-wrap: balance;
+  }
+  .output.granted { color: var(--phosphor); text-shadow: 0 0 8px rgba(125,255,176,.6); }
+  .terminal {
+    font-family: var(--display);
+    font-size: clamp(14px, 3.8vw, 20px);
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--phosphor);
+    text-shadow: 0 0 6px rgba(125,255,176,.55);
+    display: flex;
+    align-items: center;
+    gap: .35em;
+    margin: 0;
+  }
+  .terminal .prompt { color: var(--phosphor-dim); }
+  .cursor {
+    display: inline-block;
+    width: .6em;
+    height: 1em;
+    background: var(--phosphor);
+    animation: blink 1s steps(1) infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  .handle {
+    font-family: var(--mono);
+    font-size: 22px;
+    color: var(--phosphor-dim);
+    text-decoration: none;
+    border-bottom: 2px dotted var(--phosphor-dim);
+    padding-bottom: 2px;
+  }
+  .handle:hover, .handle:focus-visible {
+    color: var(--phosphor);
+    border-bottom-style: solid;
+    outline: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    body::after { animation: none; }
+    .cursor, .countdown .sep { animation: none; }
+    .countdown.glitching, .countdown.glitching::before, .countdown.glitching::after { animation: none; opacity: 0; }
+  }
+</style>
+
+</head>
+<body>
+<main class="stack" aria-label="operation829 whitepaper folder">
+  <div class="folder rear" aria-hidden="true"></div>
+  <div class="folder mid" aria-hidden="true"></div>
+  <div class="folder front">
+    <h1 class="question">Can a gamefi experiment short squeeze a stock?</h1>
+    <div class="redacted" aria-hidden="true"><span></span><span></span><span></span></div>
+    <svg class="badge" viewBox="0 0 120 120" shape-rendering="crispEdges" aria-hidden="true">
+      <g fill="none" stroke="#0c2e1c" stroke-width="3">
+        <circle cx="60" cy="52" r="40"/>
+        <ellipse cx="60" cy="52" rx="18" ry="40"/>
+        <line x1="20" y1="52" x2="100" y2="52"/>
+        <line x1="26" y1="30" x2="94" y2="30"/>
+        <line x1="26" y1="74" x2="94" y2="74"/>
+        <line x1="60" y1="12" x2="60" y2="92"/>
+      </g>
+      <rect x="16" y="70" width="88" height="40" rx="6" fill="#34a466" stroke="#0c2e1c" stroke-width="3"/>
+      <text x="60" y="100" text-anchor="middle" font-family="Silkscreen, monospace" font-weight="700" font-size="28" fill="#0c2e1c">829</text>
+    </svg>
+  </div>
+</main>
+
+<section class="console" aria-label="terminal">
+  <p class="terminal"><span class="prompt">&gt;</span> coming soon</p>
+  <p class="countdown" id="countdown" aria-live="off">
+    <span id="cd-d">--</span><span class="sep">:</span><span id="cd-h">--</span><span class="sep">:</span><span id="cd-m">--</span><span class="sep">:</span><span id="cd-s">--</span>
+  </p>
+  <form class="row" id="gate" autocomplete="off">
+    <span class="prompt">&gt;</span>
+    <input id="passphrase" name="passphrase" aria-label="passphrase" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="32">
+    <span class="cursor" aria-hidden="true"></span>
+  </form>
+  <p class="output" id="output" aria-live="polite"></p>
+</section>
+
+<a class="handle" href="https://x.com/operation829" target="_blank" rel="noopener">@operation829</a>
+
+<script>
+  // Change the target here. ISO string, UTC. 13:30Z is 9:30 ET, market open.
+  var TARGET = new Date('2026-10-29T13:30:00Z');
+  // SHA-256 of the passphrase, lowercased and trimmed. Generate a new one with:
+  //   printf 'yourphrase' | shasum -a 256
+  var KEY = '2568aaa204dd2d1b66f7f2f7887bc0bc727974a348d18ecbb77354aa74a93968';
+  var GRANTED = 'access granted // level 1 // the file opens when the counter hits zero.';
+  var DENIED  = ['access denied', 'access denied', 'access denied // attempt logged'];
+
+  var pad = function (n) { return String(n).padStart(2, '0'); };
+  var cd = document.getElementById('countdown');
+  var cells = ['cd-d', 'cd-h', 'cd-m', 'cd-s'].map(function (id) { return document.getElementById(id); });
+  function tick() {
+    var ms = TARGET - Date.now();
+    if (ms < 0) ms = 0;
+    var s = Math.floor(ms / 1000);
+    var parts = [pad(Math.floor(s / 86400)), pad(Math.floor(s / 3600) % 24), pad(Math.floor(s / 60) % 60), pad(s % 60)];
+    cells.forEach(function (el, i) { el.textContent = parts[i]; });
+    cd.dataset.text = parts.join(':');
+  }
+  tick();
+  setInterval(tick, 1000);
+
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // Glitch bursts: corrupt a few digits for a handful of frames, then snap back.
+  var NOISE = '0123456789#%&/=?';
+  function noisePair() {
+    return NOISE[Math.floor(Math.random() * NOISE.length)] + NOISE[Math.floor(Math.random() * NOISE.length)];
+  }
+  function glitch() {
+    cd.classList.add('glitching');
+    var frames = 3 + Math.floor(Math.random() * 5);
+    var n = 0;
+    var iv = setInterval(function () {
+      cells.forEach(function (el) { if (Math.random() < 0.45) el.textContent = noisePair(); });
+      if (++n >= frames) {
+        clearInterval(iv);
+        cd.classList.remove('glitching');
+        tick();
+      }
+    }, 55);
+  }
+  if (!reduce) {
+    (function loop() {
+      setTimeout(function () { glitch(); loop(); }, 1400 + Math.random() * 3800);
+    })();
+  }
+  var out = document.getElementById('output');
+  var typing = null;
+  function say(text, ok) {
+    clearInterval(typing);
+    out.className = 'output' + (ok ? ' granted' : '');
+    if (reduce) { out.textContent = text; return; }
+    var i = 0;
+    out.textContent = '';
+    typing = setInterval(function () {
+      out.textContent = text.slice(0, ++i);
+      if (i >= text.length) clearInterval(typing);
+    }, 28);
+  }
+
+  async function sha256(str) {
+    var buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+    return Array.from(new Uint8Array(buf)).map(function (b) { return b.toString(16).padStart(2, '0'); }).join('');
+  }
+
+  var gate = document.getElementById('gate');
+  var field = document.getElementById('passphrase');
+  var attempts = 0;
+  function fit() {
+    gate.classList.toggle('filled', field.value.length > 0);
+    field.style.width = Math.max(1, field.value.length + 1) + 'ch';
+  }
+  field.addEventListener('input', fit);
+  gate.addEventListener('click', function () { field.focus(); });
+  gate.addEventListener('submit', async function (e) {
+    e.preventDefault();
+    var guess = field.value.trim().toLowerCase();
+    if (!guess) return;
+    var hash = crypto.subtle ? await sha256(guess) : '';
+    if (hash === KEY) {
+      say(GRANTED, true);
+      gate.hidden = true;
+    } else {
+      say(DENIED[Math.min(attempts, DENIED.length - 1)], false);
+      attempts++;
+      field.value = '';
+      fit();
+    }
+  });
+  // Console breadcrumb for the people who look.
+  console.log('%c829', 'font-family:monospace;font-size:40px;color:#34a466');
+  console.log('%c> access level 0. the file is sealed.', 'font-family:monospace;color:#7dffb0');
+</script>
+</body>
+</html>
