@@ -974,14 +974,14 @@
   // so the sender cannot grind for a winning hash before sending.
   // ---------------------------------------------------------------
   var BURN = {
-    rpc: '',
-    token: '',
-    explorerTx: '',
+    rpc: 'https://rpc.mainnet.chain.robinhood.com',      // Robinhood Chain, chain id 4663
+    token: '0x18cc5ed00d1d80892ab13ff48481a1a277f426dc',  // OPERATION829 (OP829), 18 decimals
+    explorerTx: 'https://robinhoodchain.blockscout.com/tx/',
     decimals: 18,
     entry: '829',
     odds: 8,
     seats: 829,
-    startBlock: 0,
+    startBlock: 61978755,                                  // token deployment block; tranche 01 opens here
     burnAddress: '0x000000000000000000000000000000000000dead',
     demo: false
   };
