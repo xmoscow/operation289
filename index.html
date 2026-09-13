@@ -166,6 +166,29 @@
     text-shadow: 0 0 6px rgba(125,255,176,.45);
   }
   .tranche-title .state { color: #ff3b6b; text-shadow: 0 0 6px rgba(255,59,107,.5); }
+  .won {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 4px 0 6px;
+    border-bottom: 2px dotted var(--phosphor-dim);
+  }
+  .won .n {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: clamp(26px, 6vw, 34px);
+    letter-spacing: .04em;
+    color: var(--phosphor);
+    text-shadow: 0 0 10px rgba(125,255,176,.55);
+    font-variant-numeric: tabular-nums;
+    text-transform: none;
+  }
+  .won .n small { font-size: .5em; color: var(--phosphor-dim); text-shadow: none; }
+  .won .live { display: inline-flex; align-items: center; gap: 6px; }
+  .won .dot { width: 8px; height: 8px; background: var(--phosphor); box-shadow: 0 0 8px var(--phosphor); animation: blink 1.4s steps(1) infinite; }
+  .won .dot.stale { background: #ff3b6b; box-shadow: 0 0 8px #ff3b6b; animation: none; }
   .tranche .val {
     font-family: var(--mono);
     font-size: 20px;
@@ -720,6 +743,11 @@
   <div class="col right">
   <div class="tranche" aria-label="tranche 01 status">
     <div class="tranche-title"><span>Tranche 01</span><span class="state">sealed</span></div>
+    <div class="won" aria-live="polite">
+      <span>seats won</span>
+      <span class="n"><span id="won-n">000</span><small> / 829</small></span>
+      <span class="live"><span class="dot" id="won-dot" aria-hidden="true"></span><span id="won-when">live</span></span>
+    </div>
     <span>seats</span>
     <span class="val"><span class="seats" style="--fill:0%" aria-hidden="true"></span><span id="c-seats">000 / 829</span></span>
     <span>entry</span>
@@ -1106,14 +1134,29 @@
     }]);
   }
   async function refresh() {
-    try { ledger = await replay(await fetchLogs()); }
-    catch (e) { if (!ledger) ledger = await replay([]); }
+    var dot = document.getElementById('won-dot'), when = document.getElementById('won-when');
+    try {
+      ledger = await replay(await fetchLogs());
+      lastGood = Date.now();
+      dot.classList.remove('stale');
+      when.textContent = live ? 'live' : (BURN.demo ? 'demo' : 'offline');
+    } catch (e) {
+      if (!ledger) ledger = await replay([]);
+      dot.classList.add('stale');
+      when.textContent = lastGood ? 'stale' : 'offline';
+    }
     paintConsole();
     return ledger;
   }
+  // Keep the counter live while the page is open.
+  if (live) setInterval(function () { if (!document.hidden) refresh(); }, 30000);
+  document.addEventListener('visibilitychange', function () { if (!document.hidden && live) refresh(); });
   function sealed() { return ledger.seats >= BURN.seats; }
 
+  var lastGood = 0;
   function paintConsole() {
+    document.getElementById('won-n').textContent = pad3(ledger.seats);
+    document.querySelector('.won small').textContent = ' / ' + BURN.seats;
     var pct = Math.min(100, ledger.seats / BURN.seats * 100);
     document.querySelector('.tranche .seats').style.setProperty('--fill', pct + '%');
     document.getElementById('c-seats').textContent = pad3(ledger.seats) + ' / ' + BURN.seats;
