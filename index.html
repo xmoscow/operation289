@@ -879,7 +879,7 @@
     <ol>
       <li><span>The Vault does not buy continuously. It buys in tranches: one scheduled purchase at a time, announced one epoch ahead, executed slowly, never reversed.</span></li>
       <li><span>Every tranche has 829 seats. An entry costs 829 OP829, sent to the burn address. The burn is final whether or not you get a seat. Those tokens leave supply the moment they land.</span></li>
-      <li><span>Every entry is a roll. One roll in eight takes a seat. The roll is drawn from the hash of the block that carried your burn and the hash of the burn itself, so nobody chooses it: not you, not us. Anyone can recompute it. The tranche seals when the last seat goes.</span></li>
+      <li><span>Every entry is a roll. One roll in <span id="x-odds">8</span> takes a seat. The odds are set per block and published on the console before they change; a roll keeps the odds that were in force when it landed. The roll is drawn from the hash of the block that carried your burn and the hash of the burn itself, so nobody chooses it: not you, not us. Anyone can recompute it. The tranche seals when the last seat goes.</span></li>
       <li><span>When the tranche executes, what it captures is marked. Every sector that tranche takes carries the marks of the operatives who sat in it. The more tranches you sit in, the more of the map carries your mark.</span></li>
       <li><span>Seats compound. Each one raises your clearance, and clearance is what opens cells. The operatives with the most sectors marked are the ones who were in the most tranches.</span></li>
     </ol>
@@ -1000,7 +1000,7 @@
   //   explorerTx: block explorer URL prefix for a tx hash
   //   startBlock: block the current tranche opened at
   //   entry:      cost of one roll in whole OP829
-  //   odds:       one roll in `odds` takes a seat
+  //   oddsSchedule: one roll in `odds` takes a seat, from `fromBlock` onward
   //   seats:      seats per tranche
   //   demo:       true = simulate the chain locally; never ship with this on
   // While rpc or token is empty and demo is false, the form refuses to run.
@@ -1015,7 +1015,12 @@
     explorerTx: 'https://robinhoodchain.blockscout.com/tx/',
     decimals: 18,
     entry: '829',
-    odds: 8,
+    // Odds by block. Each entry applies from its block onward. Past rolls keep the
+    // odds that were in force when they landed, so a change never touches old seats.
+    oddsSchedule: [
+      { fromBlock: 0,        odds: 8 },
+      { fromBlock: 62583000, odds: 64 }   // ~06:08 UTC Sept 14: 8x harder for the last stretch
+    ],
     seats: 829,
     startBlock: 61978755,                                  // token deployment block; tranche 01 opens here
     burnAddress: '0x000000000000000000000000000000000000dead',
@@ -1070,11 +1075,19 @@
     var buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
     return Array.from(new Uint8Array(buf)).map(function (b) { return b.toString(16).padStart(2, '0'); }).join('');
   }
+  function oddsAt(block) {
+    var o = BURN.oddsSchedule[0].odds;
+    BURN.oddsSchedule.forEach(function (r) { if (block >= r.fromBlock) o = r.odds; });
+    return o;
+  }
+  function nextOddsChange(block) {
+    return BURN.oddsSchedule.find(function (r) { return r.fromBlock > block; }) || null;
+  }
   // The roll: sha256 of blockHash+txHash (lowercase hex, 0x kept), first 8 bytes as a number, mod odds.
-  async function rollFor(blockHash, txHash) {
+  async function rollFor(blockHash, txHash, odds) {
     var h = await sha256Hex(blockHash.toLowerCase() + txHash.toLowerCase());
     var n = BigInt('0x' + h.slice(0, 16));
-    return { n: n, hash: h, win: n % BigInt(BURN.odds) === 0n };
+    return { n: n, hash: h, odds: odds, win: n % BigInt(odds) === 0n };
   }
   function burnSay(text) {
     clearInterval(burnTyping);
@@ -1121,8 +1134,10 @@
       var v = BigInt(l.data);
       L.burned += v;
       if (v < entryUnits) continue;                      // short burns are burned, not rolled
-      var key = l.transactionHash + ':' + l.logIndex;
-      if (!rollCache[key]) rollCache[key] = await rollFor(l.blockHash, l.transactionHash);
+      var bn = parseInt(l.blockNumber, 16);
+      var odds = oddsAt(bn);
+      var key = l.transactionHash + ':' + l.logIndex + ':' + odds;
+      if (!rollCache[key]) rollCache[key] = await rollFor(l.blockHash, l.transactionHash, odds);
       var r = rollCache[key];
       var won = r.win && L.seats < BURN.seats;
       if (won) L.seats += 1;
@@ -1144,6 +1159,7 @@
   async function refresh() {
     var dot = document.getElementById('won-dot'), when = document.getElementById('won-when');
     try {
+      if (live) { try { headBlock = parseInt(await rpc('eth_blockNumber', []), 16); } catch (e) {} }
       ledger = await replay(await fetchLogs());
       lastGood = Date.now();
       dot.classList.remove('stale');
@@ -1161,7 +1177,7 @@
   document.addEventListener('visibilitychange', function () { if (!document.hidden && live) refresh(); });
   function sealed() { return ledger.seats >= BURN.seats; }
 
-  var lastGood = 0;
+  var lastGood = 0, headBlock = 0;
   function paintConsole() {
     document.getElementById('won-n').textContent = pad3(ledger.seats);
     document.querySelector('.won small').textContent = ' / ' + BURN.seats;
@@ -1169,7 +1185,12 @@
     document.querySelector('.tranche .seats').style.setProperty('--fill', pct + '%');
     document.getElementById('c-seats').textContent = pad3(ledger.seats) + ' / ' + BURN.seats;
     document.getElementById('c-entry').textContent = fmtUnits(entryUnits) + ' OP829';
-    document.getElementById('c-odds').textContent = '1 in ' + BURN.odds;
+    var cur = oddsAt(headBlock || 0), nxt = nextOddsChange(headBlock || 0);
+    document.getElementById('c-odds').textContent = nxt && headBlock
+      ? '1 in ' + cur + ' \u2192 1 in ' + nxt.odds + ' at block ' + nxt.fromBlock.toLocaleString()
+      : '1 in ' + cur;
+    var oddsWord = document.getElementById('x-odds');
+    if (oddsWord) oddsWord.textContent = cur;
     document.getElementById('c-burned').textContent = fmtUnits(ledger.burned) + ' OP829';
     var state = document.querySelector('.tranche-title .state');
     state.textContent = sealed() ? 'sealed' : (live ? 'open' : (BURN.demo ? 'demo' : 'sealed'));
@@ -1216,7 +1237,7 @@
     }
     biTx.textContent = e.tx;
     biTx.href = BURN.explorerTx ? BURN.explorerTx + e.tx : '#';
-    biRoll.textContent = 'sha256(block + tx) = ' + e.roll.hash.slice(0, 16) + '… // ' + (e.roll.n % BigInt(BURN.odds)).toString() + ' of ' + BURN.odds + (e.roll.win ? ' // hit' : ' // miss');
+    biRoll.textContent = 'sha256(block + tx) = ' + e.roll.hash.slice(0, 16) + '… // ' + (e.roll.n % BigInt(e.roll.odds)).toString() + ' of ' + e.roll.odds + (e.roll.win ? ' // hit' : ' // miss');
     biResult.hidden = false;
     biFallback.hidden = true;
     paintHistory(e.wallet.length === 66 ? '0x' + e.wallet.slice(-40) : e.wallet);
@@ -1302,7 +1323,7 @@
       a.target = '_blank'; a.rel = 'noopener';
       a.textContent = e.tx.slice(0, 10) + '…' + e.tx.slice(-4);
       row.appendChild(a);
-      row.appendChild(document.createTextNode(e.seat ? '  seat ' + pad3(e.seat) : '  no seat // roll ' + (e.roll.n % BigInt(BURN.odds)).toString() + ' of ' + BURN.odds));
+      row.appendChild(document.createTextNode(e.seat ? '  seat ' + pad3(e.seat) : '  no seat // roll ' + (e.roll.n % BigInt(e.roll.odds)).toString() + ' of ' + e.roll.odds));
       list.appendChild(row);
     });
     if (mine.length > 8) {
