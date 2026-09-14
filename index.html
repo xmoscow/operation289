@@ -879,7 +879,7 @@
     <ol>
       <li><span>The Vault does not buy continuously. It buys in tranches: one scheduled purchase at a time, announced one epoch ahead, executed slowly, never reversed.</span></li>
       <li><span>Every tranche has 829 seats. An entry costs 829 OP829, sent to the burn address. The burn is final whether or not you get a seat. Those tokens leave supply the moment they land.</span></li>
-      <li><span>Every entry is a roll. One roll in <span id="x-odds">8</span> takes a seat. The odds are set per block and published on the console before they change; a roll keeps the odds that were in force when it landed. The roll is drawn from the hash of the block that carried your burn and the hash of the burn itself, so nobody chooses it: not you, not us. Anyone can recompute it. The tranche seals when the last seat goes.</span></li>
+      <li><span>Every entry is a roll. One roll in <span id="x-odds">8</span> takes a seat. The odds are set per block and published on the console before they change; a roll keeps the odds that were in force when it landed. The last 50 seats are eight times harder again. The roll is drawn from the hash of the block that carried your burn and the hash of the burn itself, so nobody chooses it: not you, not us. Anyone can recompute it. The tranche seals when the last seat goes.</span></li>
       <li><span>When the tranche executes, what it captures is marked. Every sector that tranche takes carries the marks of the operatives who sat in it. The more tranches you sit in, the more of the map carries your mark.</span></li>
       <li><span>Seats compound. Each one raises your clearance, and clearance is what opens cells. The operatives with the most sectors marked are the ones who were in the most tranches.</span></li>
     </ol>
@@ -1022,6 +1022,9 @@
       { fromBlock: 62583000, odds: 64 }   // ~06:08 UTC Sept 14: 8x harder for the last stretch
     ],
     seats: 829,
+    // Late stage: once only `seatsLeft` seats remain, odds multiply by `multiplier`
+    // for every roll that lands after that point. Judged in chain order.
+    lateStage: { seatsLeft: 50, multiplier: 8 },
     startBlock: 61978755,                                  // token deployment block; tranche 01 opens here
     burnAddress: '0x000000000000000000000000000000000000dead',
     demo: false
@@ -1075,11 +1078,13 @@
     var buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
     return Array.from(new Uint8Array(buf)).map(function (b) { return b.toString(16).padStart(2, '0'); }).join('');
   }
-  function oddsAt(block) {
+  function oddsAt(block, seatsSoFar) {
     var o = BURN.oddsSchedule[0].odds;
     BURN.oddsSchedule.forEach(function (r) { if (block >= r.fromBlock) o = r.odds; });
+    if (BURN.lateStage && seatsSoFar >= BURN.seats - BURN.lateStage.seatsLeft) o *= BURN.lateStage.multiplier;
     return o;
   }
+  function lateStageAt() { return BURN.lateStage ? BURN.seats - BURN.lateStage.seatsLeft : null; }
   function nextOddsChange(block) {
     return BURN.oddsSchedule.find(function (r) { return r.fromBlock > block; }) || null;
   }
@@ -1135,7 +1140,7 @@
       L.burned += v;
       if (v < entryUnits) continue;                      // short burns are burned, not rolled
       var bn = parseInt(l.blockNumber, 16);
-      var odds = oddsAt(bn);
+      var odds = oddsAt(bn, L.seats);
       var key = l.transactionHash + ':' + l.logIndex + ':' + odds;
       if (!rollCache[key]) rollCache[key] = await rollFor(l.blockHash, l.transactionHash, odds);
       var r = rollCache[key];
@@ -1185,10 +1190,12 @@
     document.querySelector('.tranche .seats').style.setProperty('--fill', pct + '%');
     document.getElementById('c-seats').textContent = pad3(ledger.seats) + ' / ' + BURN.seats;
     document.getElementById('c-entry').textContent = fmtUnits(entryUnits) + ' OP829';
-    var cur = oddsAt(headBlock || 0), nxt = nextOddsChange(headBlock || 0);
-    document.getElementById('c-odds').textContent = nxt && headBlock
-      ? '1 in ' + cur + ' \u2192 1 in ' + nxt.odds + ' at block ' + nxt.fromBlock.toLocaleString()
-      : '1 in ' + cur;
+    var cur = oddsAt(headBlock || 0, ledger.seats), nxt = nextOddsChange(headBlock || 0);
+    var late = lateStageAt();
+    var label = '1 in ' + cur;
+    if (nxt && headBlock) label += ' \u2192 1 in ' + oddsAt(nxt.fromBlock, ledger.seats) + ' at block ' + nxt.fromBlock.toLocaleString();
+    else if (late !== null && ledger.seats < late) label += ' \u2192 1 in ' + (cur * BURN.lateStage.multiplier) + ' at seat ' + pad3(late);
+    document.getElementById('c-odds').textContent = label;
     var oddsWord = document.getElementById('x-odds');
     if (oddsWord) oddsWord.textContent = cur;
     document.getElementById('c-burned').textContent = fmtUnits(ledger.burned) + ' OP829';
