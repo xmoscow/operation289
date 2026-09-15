@@ -699,6 +699,11 @@
     text-shadow: 0 0 6px rgba(125,255,176,.35);
   }
   .phase-title small { font-weight: 400; font-size: 11px; color: var(--phosphor-dim); text-shadow: none; }
+  .phase .burn-btn { align-self: flex-start; margin: 6px 0 0; padding: 8px 12px; font-size: 11px; }
+  .verify-rows { display: grid; grid-template-columns: max-content 1fr; gap: 8px 18px; align-items: baseline; margin-top: 14px; }
+  .verify-rows .k { font-family: var(--display); font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--phosphor-dim); }
+  .verify-rows .v { font-family: var(--mono); font-size: 19px; color: var(--phosphor); word-break: break-all; }
+  .verify-rows .v.dim { color: var(--phosphor-dim); }
 
   .corner {
     position: fixed;
@@ -780,6 +785,7 @@
     <span class="addr" id="ca-addr" hidden></span>
     <button class="copy-btn" id="ca-copy" type="button">[ copy ]</button>
   </div>
+  <button class="burn-btn" id="verify-open" type="button" aria-haspopup="dialog" aria-controls="dossier-verify">[ verify holder ]</button>
 </div>
 <a class="handle" href="https://x.com/operation829" target="_blank" rel="noopener" aria-label="operation829 on X">
   <svg viewBox="0 0 24 24" shape-rendering="crispEdges" aria-hidden="true"><path d="M18.9 2H22l-7.2 8.3L23 22h-6.6l-5.2-6.8L5.3 22H2.1l7.7-8.8L1.6 2h6.8l4.7 6.2L18.9 2zm-1.2 18h1.8L7.1 3.9H5.2L17.7 20z"/></svg>
@@ -955,6 +961,46 @@
     </div>
 
     <p class="fine">Burning is irreversible. Tokens sent to the burn address cannot be recovered by anyone, including the operation, and a losing roll is still burned. A seat is a seat: not a share, not a yield, not a promise.</p>
+  </div>
+</dialog>
+
+<dialog class="dossier dossier-term" id="dossier-verify" aria-labelledby="verify-title">
+  <div class="dossier-inner">
+    <div class="dossier-head">
+      <span class="tag">Holder verification</span>
+      <button class="dossier-close" id="dossier-verify-close" type="button">[ close ]</button>
+    </div>
+    <h2 id="verify-title">prove the wallet. the operation checks the rest.</h2>
+    <p>Connect the wallet, or paste its address. The console reads the chain and reports what that wallet holds: operative NFTs from the collection, and seats it took in tranche 01. Nothing is sent, signed, or stored.</p>
+
+    <form class="burn-form" id="verify-form" autocomplete="off">
+      <div class="field">
+        <label for="verify-wallet">wallet // the address to check</label>
+        <input id="verify-wallet" name="verify-wallet" class="addr" placeholder="0x" spellcheck="false" autocapitalize="off" maxlength="42">
+      </div>
+      <div class="actions">
+        <button class="burn-btn" id="verify-connect" type="button">[ connect wallet ]</button>
+        <button class="burn-btn" type="submit">[ verify ]</button>
+      </div>
+      <p class="burn-out" id="verify-out" aria-live="polite"></p>
+    </form>
+
+    <div class="burn-instr" id="verify-result" hidden>
+      <div class="burn-status" id="vr-status" aria-live="polite"><span>reading the chain</span><span class="cursor" aria-hidden="true"></span></div>
+      <div class="verify-rows">
+        <span class="k">wallet</span><span class="v" id="vr-wallet"></span>
+        <span class="k">proof</span><span class="v dim" id="vr-proof"></span>
+        <span class="k">operative nft</span><span class="v" id="vr-nft"></span>
+        <span class="k">tranche 01 seats</span><span class="v" id="vr-seats"></span>
+      </div>
+      <div id="vr-seatlist-box" hidden>
+        <span class="k">seats held</span>
+        <div class="hist" id="vr-seatlist"></div>
+      </div>
+      <div class="actions"><button class="link-btn" id="verify-again" type="button">[ check another ]</button></div>
+    </div>
+
+    <p class="fine">A pasted address proves nothing about who controls it; a connected wallet does. Holding is read live from the chain and confers no yield, no share, and no promise.</p>
   </div>
 </dialog>
 
@@ -1419,6 +1465,126 @@
     burnForm.hidden = false;
     burnOut.textContent = '';
     paintConsole();
+  });
+
+  // ---------------------------------------------------------------
+  // Holder verification. Reads ERC-721 balanceOf on the operative
+  // collection and counts tranche 01 seats from the ledger above.
+  //   contract: the NFT collection address. Empty = not deployed yet;
+  //             the check still runs and reports tranche 01 seats.
+  //   rpc:      chain the collection lives on (defaults to the token's)
+  // ---------------------------------------------------------------
+  var NFT = {
+    contract: '',
+    rpc: BURN.rpc,
+    name: 'operative clearance'
+  };
+  wireDossier('verify-open', 'dossier-verify', 'dossier-verify-close');
+
+  var vForm = document.getElementById('verify-form');
+  var vWallet = document.getElementById('verify-wallet');
+  var vOut = document.getElementById('verify-out');
+  var vResult = document.getElementById('verify-result');
+  var vStatus = document.getElementById('vr-status');
+  var vProof = 'pasted address // unproven';
+  var vTyping = null;
+
+  function vSay(text) {
+    clearInterval(vTyping);
+    if (reduce) { vOut.textContent = text; return; }
+    var i = 0; vOut.textContent = '';
+    vTyping = setInterval(function () { vOut.textContent = text.slice(0, ++i); if (i >= text.length) clearInterval(vTyping); }, 24);
+  }
+  function vSetStatus(text, cls, blink) {
+    vStatus.className = 'burn-status' + (cls ? ' ' + cls : '');
+    vStatus.innerHTML = '';
+    var t = document.createElement('span'); t.textContent = text; vStatus.appendChild(t);
+    if (blink) { var c = document.createElement('span'); c.className = 'cursor'; c.setAttribute('aria-hidden', 'true'); vStatus.appendChild(c); }
+  }
+  function rpcAt(url, method, params) {
+    return fetch(url, { method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: method, params: params }) })
+      .then(function (r) { return r.json(); })
+      .then(function (j) { if (j.error) throw new Error(j.error.message || 'rpc error'); return j.result; });
+  }
+  // ERC-721 balanceOf(address) selector is 0x70a08231.
+  async function nftBalance(wallet) {
+    if (!NFT.contract || !isAddr(NFT.contract)) return null;
+    var data = '0x70a08231' + wallet.toLowerCase().replace(/^0x/, '').padStart(64, '0');
+    var r = await rpcAt(NFT.rpc, 'eth_call', [{ to: NFT.contract, data: data }, 'latest']);
+    return (r && r !== '0x') ? BigInt(r) : 0n;
+  }
+  function shortAddr(a) { return a.slice(0, 8) + '\u2026' + a.slice(-4); }
+
+  document.getElementById('verify-connect').addEventListener('click', async function () {
+    if (!window.ethereum) { vSay('> no wallet found in this browser. paste the address instead.'); return; }
+    try {
+      var accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+      if (!accounts || !accounts.length) { vSay('> the wallet returned no account.'); return; }
+      vWallet.value = accounts[0];
+      vWallet.classList.remove('bad');
+      vProof = 'connected wallet';
+      vSay('> wallet connected. press verify.');
+    } catch (e) { vSay('> connection refused.'); }
+  });
+  vWallet.addEventListener('input', function () { vProof = 'pasted address // unproven'; });
+
+  async function verifyHolder(wallet) {
+    vForm.hidden = true; vResult.hidden = false;
+    document.getElementById('vr-wallet').textContent = wallet;
+    document.getElementById('vr-proof').textContent = vProof;
+    document.getElementById('vr-nft').textContent = '\u2026';
+    document.getElementById('vr-seats').textContent = '\u2026';
+    document.getElementById('vr-seatlist-box').hidden = true;
+    vSetStatus('reading the chain', '', true);
+
+    var seats = [], nft = null, chainOk = true;
+    try {
+      await refresh();
+      seats = (ledger.byWallet[pad32(wallet)] || []).filter(function (x) { return x.seat; });
+    } catch (e) { chainOk = false; }
+    try { nft = await nftBalance(wallet); } catch (e) { chainOk = false; nft = null; }
+
+    var nftEl = document.getElementById('vr-nft');
+    if (!NFT.contract) { nftEl.textContent = 'collection not deployed yet'; nftEl.className = 'v dim'; }
+    else if (nft === null) { nftEl.textContent = 'could not read'; nftEl.className = 'v dim'; }
+    else { nftEl.textContent = nft.toString() + ' held'; nftEl.className = 'v'; }
+    document.getElementById('vr-seats').textContent = seats.length + (seats.length === 1 ? ' seat' : ' seats');
+
+    if (seats.length) {
+      var list = document.getElementById('vr-seatlist'); list.innerHTML = '';
+      seats.forEach(function (e) {
+        var row = document.createElement('div'); row.className = 'hit';
+        var a = document.createElement('a'); a.href = BURN.explorerTx ? BURN.explorerTx + e.tx : '#'; a.target = '_blank'; a.rel = 'noopener';
+        a.textContent = 'seat ' + pad3(e.seat); row.appendChild(a);
+        row.appendChild(document.createTextNode('  ' + shortAddr(e.tx)));
+        list.appendChild(row);
+      });
+      document.getElementById('vr-seatlist-box').hidden = false;
+    }
+
+    var held = (nft !== null && nft > 0n) || seats.length > 0;
+    if (held) {
+      var parts = [];
+      if (nft !== null && nft > 0n) parts.push(nft.toString() + ' ' + NFT.name);
+      if (seats.length) parts.push(seats.length + ' tranche 01 seat' + (seats.length === 1 ? '' : 's'));
+      vSetStatus('holder verified // ' + parts.join(' // '), 'ok', false);
+    } else if (!chainOk) {
+      vSetStatus('could not reach the chain // try again', 'bad', false);
+    } else {
+      vSetStatus('no holdings on this wallet', 'bad', false);
+    }
+  }
+
+  vForm.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var w = vWallet.value.trim();
+    vWallet.classList.remove('bad');
+    if (!isAddr(w)) { vWallet.classList.add('bad'); vSay('> that is not a wallet address.'); return; }
+    verifyHolder(w);
+  });
+  document.getElementById('verify-again').addEventListener('click', function () {
+    vResult.hidden = true; vForm.hidden = false; vOut.textContent = '';
   });
 
   // Phase two contract address line. Blank (redacted bar) until PHASE2.ca is set.
