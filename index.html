@@ -770,8 +770,6 @@
     <span class="val" id="c-entry">829 OP829</span>
     <span>odds</span>
     <span class="val" id="c-odds">sealed</span>
-    <span>burned</span>
-    <span class="val" id="c-burned">0 OP829</span>
     <button class="burn-btn" id="burn-open" type="button" aria-haspopup="dialog" aria-controls="dossier-tranche">[ tranche sealed ]</button>
   </div>
 <div class="phase" aria-label="phase two">
@@ -1219,7 +1217,6 @@
     document.getElementById('c-odds').textContent = sealed() ? 'sealed' : label;
     var oddsWord = document.getElementById('x-odds');
     if (oddsWord) oddsWord.textContent = cur;
-    document.getElementById('c-burned').textContent = fmtUnits(ledger.burned) + ' OP829';
     var state = document.querySelector('.tranche-title .state');
     state.textContent = sealed() ? 'sealed' : (live ? 'open' : (BURN.demo ? 'demo' : 'sealed'));
     state.style.color = (live && !sealed()) ? 'var(--phosphor)' : '';
