@@ -688,7 +688,24 @@
   .ca.set .redact { display: none; }
   .ca.set .copy-btn { display: inline-block; }
 
-  .phase { display: flex; flex-direction: column; gap: 10px; max-width: 100%; }
+  .phase { display: flex; flex-direction: column; gap: 10px; width: min(460px, 100%); box-sizing: border-box; }
+  .btn-row { width: min(460px, 100%); display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .btn-row .burn-btn { margin: 0; padding: 11px 10px; font-size: 11px; grid-column: auto; }
+  .btn-row .burn-btn.pink { border-color: #ff3b6b; color: #ff3b6b; }
+  .btn-row .burn-btn.pink:hover, .btn-row .burn-btn.pink:focus-visible { background: #ff3b6b; color: var(--crt); }
+  .dossier h4 { font-family: var(--display); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; margin: 16px 0 4px; color: #3a3b34; }
+  .dossier .byline { font-family: var(--display); font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: #3a3b34; margin: -8px 0 16px; }
+  .dossier .byline a { color: inherit; }
+  .dossier figure { margin: 10px 0 14px; }
+  .dossier figure img { display: block; width: 100%; height: auto; border: 3px solid #1c1d18; image-rendering: auto; }
+  .dossier figcaption { font-family: var(--display); font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: #3a3b34; margin-top: 6px; }
+  .dossier table.wide th { text-align: left; font-family: var(--display); font-size: 10px; letter-spacing: .1em; text-transform: uppercase; padding: 4px 8px 4px 0; border-bottom: 3px solid #1c1d18; }
+  .dossier table.wide td { text-align: left; white-space: normal; padding-right: 8px; }
+  .dossier table.wide td:last-child, .dossier table.wide th:last-child { text-align: right; padding-right: 0; white-space: nowrap; }
+  .dossier ol.plain { padding-left: 22px; margin: 0 0 8px; }
+  .dossier-article .classified { background: #1c1d18; background-image: radial-gradient(circle, rgba(228,230,220,.25) 1px, transparent 1.2px); background-size: 3px 3px; }
+  .dossier .read-on { display: inline-block; margin-top: 18px; font-family: var(--display); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: #1c1d18; border: 3px solid #1c1d18; padding: 8px 12px; text-decoration: none; }
+  .dossier .read-on:hover, .dossier .read-on:focus-visible { background: #1c1d18; color: var(--cream); outline: none; }
   .phase-title {
     font-family: var(--display);
     font-weight: 700;
@@ -785,7 +802,10 @@
     <span class="addr" id="ca-addr" hidden></span>
     <button class="copy-btn" id="ca-copy" type="button">[ copy ]</button>
   </div>
-  <button class="burn-btn" id="verify-open" type="button" aria-haspopup="dialog" aria-controls="dossier-verify">[ verify holder ]</button>
+</div>
+<div class="btn-row">
+  <button class="burn-btn pink" id="verify-open" type="button" aria-haspopup="dialog" aria-controls="dossier-verify">[ verify holder ]</button>
+  <button class="burn-btn" id="article-open" type="button" aria-haspopup="dialog" aria-controls="dossier-article">[ read the article ]</button>
 </div>
 <a class="handle" href="https://x.com/operation829" target="_blank" rel="noopener" aria-label="operation829 on X">
   <svg viewBox="0 0 24 24" shape-rendering="crispEdges" aria-hidden="true"><path d="M18.9 2H22l-7.2 8.3L23 22h-6.6l-5.2-6.8L5.3 22H2.1l7.7-8.8L1.6 2h6.8l4.7 6.2L18.9 2zm-1.2 18h1.8L7.1 3.9H5.2L17.7 20z"/></svg>
@@ -961,6 +981,128 @@
     </div>
 
     <p class="fine">Burning is irreversible. Tokens sent to the burn address cannot be recovered by anyone, including the operation, and a losing roll is still burned. A seat is a seat: not a share, not a yield, not a promise.</p>
+  </div>
+</dialog>
+
+<dialog class="dossier dossier-article" id="dossier-article" aria-labelledby="article-title">
+  <div class="dossier-inner">
+    <div class="dossier-head">
+      <span class="tag">Dossier 04 // the article</span>
+      <button class="dossier-close" id="dossier-article-close" type="button">[ close ]</button>
+    </div>
+    <h2 id="article-title">what if a gamefi experiment can short squeeze a stock?</h2>
+    <p class="byline">By <a href="https://x.com/xLemoneee" target="_blank" rel="noopener">@xLemoneee</a> // Operation 829 // September 2026 // <a href="https://x.com/xLemoneee/status/2099229072727429382" target="_blank" rel="noopener">published on X</a></p>
+    <h3>Abstract</h3>
+    <p>Short squeezes are usually treated as accidents: a crowded short position meets an unplanned wave of buying. This article asks whether the buying side can be engineered. It examines Quantum Computing Inc. (NASDAQ: QUBT), a small cap quantum photonics company whose short position has grown to roughly a third of its float while its trading volume has collapsed, and it describes a mechanism, Operation 829, that converts the trading activity of a crypto token into a treasury that accumulates exposure to that stock and never sells. The stock side data are drawn from FINRA short interest reports, SEC filings, and the company's own results. The mechanism is described as it exists on chain today. The article is explicit about what is built, what is hypothesis, and what would break it.</p>
+    <h3>1. Introduction</h3>
+    <p>Every short squeeze in history has needed two things. The first is a stock with more borrowed shares than the market can comfortably return. The second is a buyer who does not sell into the rally. The first condition is common. The second is rare, because crowds are uncoordinated and take profits.</p>
+    <p>The 2021 GameStop episode is the canonical modern case. On January 22, 2021, roughly 140 percent of GameStop's public float had been sold short, meaning shares had been lent, sold, relent, and sold again. Goldman Sachs later observed that short interest above 100 percent of float had occurred only fifteen times in the preceding decade. The stock went from about $17 to an intraday high of $483 in three weeks. The crowd that drove it was informal, held no shared treasury, and began selling within days of the peak. The squeeze ended because its buyers were human.</p>
+    <p>Operation 829 is an attempt to replace the human buyer with a mechanism. The rest of this article does three things. Section 2 sets out what the academic and practitioner literature treats as the preconditions for a squeeze. Section 3 measures QUBT against those preconditions using current data. Sections 4 and 5 describe the mechanism and model what it can and cannot do. Section 6 lists the threats to the thesis, because an argument that omits them is advertising, not analysis.</p>
+    <figure><img src="charts/fig0-scorecard.png" alt="Figure 0: the squeeze scorecard" loading="lazy"><figcaption>Figure 0 // the squeeze scorecard</figcaption></figure>
+    <h3>2. Anatomy of a short squeeze</h3>
+    <p>A short seller borrows shares, sells them, and owes the shares back. While the position is open, three costs run against it: a borrow fee paid to the lender, margin posted against the position, and the unrealized loss if the price rises. A squeeze occurs when those costs force enough short sellers to buy back shares at the same time that their buying itself moves the price, which raises the costs on the shorts who remain.</p>
+    <p>Practitioners track three variables to judge how close a stock is to that state.</p>
+    <p><strong>Short interest as a share of float.</strong> The fraction of tradable shares that have been sold short. Above 20 percent is considered high; above 30 percent is rare; above 100 percent means the same shares have been borrowed and sold more than once.</p>
+    <p><strong>Days to cover.</strong> Shares short divided by average daily volume. It measures how long it would take the entire short position to exit at normal trading volume. A rising figure means the exit is narrowing.</p>
+    <p><strong>Cost to borrow.</strong> The annualized fee charged to hold a short position. It is set at the margin by the supply of lendable shares. When lendable supply tightens by a few percent, the fee can move by multiples. It is the variable that turns a crowded trade into a forced one.</p>
+    <p>When all three rise together, the stock is described as squeeze vulnerable. The literature adds a fourth condition that is easy to miss: a catalyst that removes shares from the lendable pool. In the GameStop case the catalyst was retail buying on margin free accounts. In the Volkswagen case of 2008 it was Porsche's disclosure that it controlled 74 percent of the shares, leaving a free float of roughly 6 percent against short positions of about 12 percent. Volkswagen briefly became the most valuable company in the world. The point of that example is not the price. It is that the squeeze was triggered by a change in the supply of borrowable shares, not by a change in demand for the stock.</p>
+    <p>That distinction is the core of what follows. Operation 829 is not designed to create demand. It is designed to remove supply.</p>
+    <h3>3. QUBT: the case</h3>
+    <h4>3.1 Capital structure</h4>
+    <table class="wide">
+      <tr><th>Metric</th><th>Value</th><th>As of</th></tr>
+      <tr><td>Shares outstanding</td><td>226.35M</td><td>Sept 2026</td></tr>
+      <tr><td>Float</td><td>200.64M</td><td>Sept 2026</td></tr>
+      <tr><td>Shares sold short</td><td>64.72M</td><td>Aug 31, 2026</td></tr>
+      <tr><td>Short interest, share of float</td><td>32.3% to 32.6%</td><td>Aug 31, 2026</td></tr>
+      <tr><td>Short interest, share of shares outstanding</td><td>28.6%</td><td>Aug 31, 2026</td></tr>
+      <tr><td>Days to cover</td><td>8.85</td><td>Aug 31, 2026</td></tr>
+      <tr><td>Average daily volume</td><td>6.6M shares</td><td>Aug 2026</td></tr>
+      <tr><td>Price</td><td>$7.99</td><td>Sept 11, 2026</td></tr>
+      <tr><td>52-week range</td><td>$6.18 to $25.84</td><td></td></tr>
+      <tr><td>Market capitalization</td><td>$1.81B</td><td>Sept 11, 2026</td></tr>
+      <tr><td>Cash, equivalents and investments</td><td>$1.3B</td><td>June 30, 2026</td></tr>
+      <tr><td>Total debt</td><td>$23.4M</td><td>June 30, 2026</td></tr>
+      <tr><td>Enterprise value</td><td>$878M</td><td>Sept 11, 2026</td></tr>
+      <tr><td>Beta, five year</td><td>3.77</td><td></td></tr>
+    </table>
+    <p>Sources: StockAnalysis, MarketBeat, company Q2 2026 results.</p>
+    <p>Two things stand out. The first is that nearly a third of the float is sold short, which places QUBT far above its own sector. The second is that the company holds about $1.3 billion in cash against a $1.8 billion market capitalization, so the market values the operating business at under $900 million. That matters for the short thesis and for the squeeze thesis in opposite ways, and Section 6 returns to it.</p>
+    <h4>3.2 The short position over time</h4>
+    <figure><img src="charts/fig1-short-interest.png" alt="Figure 1: short interest and days to cover" loading="lazy"><figcaption>Figure 1 // short interest and days to cover</figcaption></figure>
+    <p>FINRA publishes short interest twice a month. Between the December 15, 2025 report and the August 31, 2026 report, shares sold short rose from 45.3 million to 64.7 million, an increase of 43 percent. Over the same period the share of float sold short rose from 25 percent to 32.6 percent. The position grew through the spring rally to $12 and kept growing through the summer decline to $8. Short sellers have not been shaken out by either direction.</p>
+    <p>The more important series is the second panel. Days to cover was 2.5 in December 2025 and dipped below two in May 2026 when volume was high. By August 31 it was 8.85. The short position did not become harder to exit because it got bigger. It became harder to exit because the volume that would absorb its exit disappeared. Average daily volume, which was above 50 million shares in September 2025, was 6.6 million by August 2026.</p>
+    <p>A short position that needs nine days of the entire market's volume to close is a position whose holders cannot leave quickly if they are forced to.</p>
+    <h4>3.3 The sector</h4>
+    <figure><img src="charts/fig4-peers.png" alt="Figure 4: short interest across quantum names" loading="lazy"><figcaption>Figure 4 // short interest across quantum names</figcaption></figure>
+    <p>Quantum computing equities are heavily shorted as a group, which reflects a sector where valuations run ahead of revenue. Within that group, QUBT is the outlier. IonQ carries roughly 22 percent of float short, D-Wave roughly 19 percent, Rigetti roughly 15 percent, and Infleqtion under 2 percent. QUBT's 32 percent is not a sector effect. It is a company-specific bet, and company-specific bets are the ones that get squeezed, because there is no sector-wide hedge that protects them.</p>
+    <h4>3.4 Who holds the shares</h4>
+    <figure><img src="charts/fig3-float-map.png" alt="Figure 3: the float and the short position" loading="lazy"><figcaption>Figure 3 // the float and the short position</figcaption></figure>
+    <p>Ownership data for QUBT vary by source. StockAnalysis reports institutional ownership of 47.6 percent and insider ownership of 11.2 percent, leaving about 41 percent with retail and other holders. Other aggregators report institutional ownership closer to 18 percent with retail near 70 percent. The discrepancy comes from how 13F filers are counted and whether index funds are included. Vanguard alone is reported at 10.5 percent.</p>
+    <p>For a squeeze, the composition matters because of lending. Institutional shares held in custody are routinely lent to short sellers and are the main source of borrow supply. Retail shares in cash accounts are not lent. Every share that moves from an account that lends into one that does not shrinks the lendable pool without a single share being bought on the open market beyond the transfer itself.</p>
+    <h4>3.5 The balance sheet</h4>
+    <p>Quantum Computing Inc. reported second quarter 2026 revenue of $5.6 million, up from $61 thousand a year earlier, operating expenses of $21.8 million, and a net loss of $11.8 million. It closed the quarter with $1.3 billion in cash and investments, down from $1.5 billion at year end after roughly $180 million of acquisitions. Contract backlog was $42.5 million.</p>
+    <p>The short thesis on QUBT is a valuation thesis: the operating business does not justify the market capitalization. The balance sheet complicates that thesis. With $1.3 billion in cash and $23 million in debt, the company can fund its current loss rate for decades, and the enterprise value the shorts are betting against is under $900 million. Shorts are not betting on insolvency. They are betting that a cash-rich company with a small business will drift toward its cash value. That is a slow thesis, and slow theses are expensive to hold when borrow costs rise.</p>
+    <h3>4. The mechanism</h3>
+    <figure><img src="charts/fig5-mechanism.png" alt="Figure 5: how the mechanism is meant to work" loading="lazy"><figcaption>Figure 5 // how the mechanism is meant to work</figcaption></figure>
+    <p>Operation 829 has three layers. The first two are deployed. The third is the hypothesis.</p>
+    <h4>4.1 The token</h4>
+    <p>OP829 is an ERC-20 token on Robinhood Chain, an Ethereum layer 2, at contract address 0x18cc5ed00d1d80892ab13ff48481a1a277f426dc. Supply is fixed at one billion with no mint function. Every trade on the token's liquidity pool pays a 5 percent tax. The largest slice of the tax, 3 percent of every trade, is routed to a treasury called the Vault. The direction of the trade is irrelevant. A sale funds the Vault exactly as a purchase does.</p>
+    <p>The design choice here is the important one. Most token treasuries are funded by inflows and starved by outflows. A transfer tax is funded by activity in either direction. It converts volatility into treasury, which is the property a squeeze vehicle needs, because a squeeze vehicle must keep buying when its own holders are panicking.</p>
+    <h4>4.2 The Vault</h4>
+    <p>The Vault accumulates exposure to QUBT and does not sell. Selling requires a two thirds supermajority of token holders, a thirty day public notice, and a written rationale. There is no discretionary lever.</p>
+    <p>It does not buy continuously. It buys in tranches: a single scheduled purchase, announced an epoch in advance, executed slowly over a window of hours, never reversed. The Vault is not designed to move the price on any given day. It is designed to remove shares from circulation and keep them removed, which is the Volkswagen lesson rather than the GameStop one.</p>
+    <h4>4.3 Seats</h4>
+    <p>Each tranche has 829 seats, and a tranche executes when its seats are filled. A seat is not purchased. It is won. A participant sends exactly 829 OP829 to the burn address. That is one roll. One roll in eight takes a seat. The other seven are burned with nothing in return.</p>
+    <p>The roll is computed as the SHA-256 hash of the block hash that included the burn concatenated with the burn's transaction hash, read as a number, modulo eight. The block hash is unknown until the burn is already included, so the sender cannot search for a winning transaction before sending. Anyone can recompute any roll from public chain data, and the project's site displays the computation for every entry.</p>
+    <p>The burn mechanism does two jobs. It gates the Vault's purchases behind community participation rather than a team decision, and it removes token supply with every entry whether or not the entry wins. At the time of writing, 220 burns from 17 wallets have removed just over 2 percent of the token's supply.</p>
+    <h4>4.4 A seat is a token</h4>
+    <p>A seat is not a database entry. When a roll wins, the seat will be minted to the winning wallet as an NFT on Robinhood Chain, carrying the tranche number, the seat number, the block hash that decided it, and the burn transaction that paid for it. A seat is therefore a permanent, verifiable record of one thing: that its holder removed 829 OP829 from supply at a specific moment and won the roll.</p>
+    <p>Seats are <span class="classified" style="width:6ch"></span> for the first <span class="classified" style="width:3ch"></span> epochs and <span class="classified" style="width:6ch"></span> thereafter. The reason for the delay is described in 5.2.</p>
+    <p>Every seat carries a mark. When the tranche executes, the QUBT float it captures is divided into sectors, and each sector carries the marks of the seats in that tranche. A wallet's marks are <span class="classified" style="width:14ch"></span>, which is the input to <span class="classified" style="width:6ch"></span> in Section 5.</p>
+    <h3>5. The game layer</h3>
+    <p class="fine">This section is released in part. Bars indicate material sealed until clearance window 01.</p>
+    <h4>5.1 Epochs</h4>
+    <p>The operation runs on epochs keyed to a calendar nobody in the project controls: FINRA's twice monthly short interest settlement dates. Each publication opens a new epoch of roughly two weeks. What the data say sets the regime.</p>
+    <p>If short interest rose, the epoch is a defend epoch. <span class="classified" style="width:18ch"></span> <span class="classified" style="width:8ch"></span>. If short interest fell, the epoch is an advance epoch, and <span class="classified" style="width:16ch"></span>. If cost to borrow crosses <span class="classified" style="width:3ch"></span>, the epoch is a siege epoch, and <span class="classified" style="width:22ch"></span>.</p>
+    <p>The regime changes what seats earn. The 1 percent game slice of the transfer tax accrues to a rewards pool each epoch, and the pool is distributed to seats according to <span class="classified" style="width:10ch"></span>, weighted by <span class="classified" style="width:6ch"></span> and <span class="classified" style="width:6ch"></span>. A seat held through a defend epoch earns <span class="classified" style="width:3ch"></span> a seat held through an advance epoch. Nothing is distributed to wallets that hold no seat.</p>
+    <p>Tying the game clock to a regulatory data release does two things. It makes every FINRA report an event the community watches, and it makes the reward schedule impossible for the team to time.</p>
+    <h4>5.2 Cells</h4>
+    <p>A seat is an entry credential. <span class="classified" style="width:3ch"></span> seats held by one wallet, or <span class="classified" style="width:3ch"></span> seats and <span class="classified" style="width:6ch"></span>, open a <strong>cell</strong>. Cells are the layer where the operation stops being a lottery and becomes <span class="classified" style="width:6ch"></span>.</p>
+    <p>A cell <span class="classified" style="width:26ch"></span>. The cost to open a cell is paid in OP829 and is burned, and the cost of each subsequent cell is <span class="classified" style="width:12ch"></span>. The most rational move inside the operation, growing a position, permanently shrinks the float.</p>
+    <p>Cells can be retired. Retiring a cell <span class="classified" style="width:16ch"></span>, less an extraction fee. The fee scales with how many cells are retired in the same epoch. Half of every fee is burned. The other half is paid to every cell that stayed. A run on the operation pays the operatives who did not run.</p>
+    <p>Cells that go silent for <span class="classified" style="width:3ch"></span> epochs are reclaimed. Activity is free and any action resets the clock. <span class="classified" style="width:28ch"></span>.</p>
+    <h4>5.3 The flywheel</h4>
+    <p>The design goal of the game layer is that no part of it requires the token price to rise. Each loop below is funded by activity, not appreciation.</p>
+    <ol class="plain">
+      <li>Trades pay the tax. 3 percent funds the Vault. 1 percent funds the epoch rewards pool.</li>
+      <li>Rewards flow only to seats. Seats can only be won by burning. Demand for rewards is demand for burns.</li>
+      <li>Burns shrink supply. Seven of every eight burns win nothing and shrink supply anyway.</li>
+      <li>Seats become <span class="classified" style="width:6ch"></span> after <span class="classified" style="width:3ch"></span> epochs. A seat that has earned through <span class="classified" style="width:3ch"></span> epochs carries <span class="classified" style="width:6ch"></span>, and a market for seats is a market whose every trade <span class="classified" style="width:8ch"></span>.</li>
+      <li>Seats open cells. Cells cost burns. Cells earn <span class="classified" style="width:12ch"></span> and their extraction fees pay the cells that stay.</li>
+      <li>When 829 seats fill, the tranche executes and the Vault buys. The next tranche opens. The seats from the executed tranche <span class="classified" style="width:18ch"></span>, which is the reason a seat from tranche 01 <span class="classified" style="width:18ch"></span>.</li>
+    </ol>
+    <p>Steps 1 through 3 are live. Step 6 is the rule already published. Steps 4 and 5 are <span class="classified" style="width:12ch"></span>, and the parameters that make them self-sustaining rather than extractive, <span class="classified" style="width:6ch"></span>, <span class="classified" style="width:6ch"></span>, and <span class="classified" style="width:6ch"></span>, are the ones sealed above. They are sealed because <span class="classified" style="width:32ch"></span>, and because a flywheel whose numbers are published before it spins is a flywheel that gets front-run.</p>
+    <p>What can be said is the intent. Every path through the operation either burns OP829 or feeds the Vault. There is no third path. A participant who never wins a seat still shrank the supply. A participant who wins and leaves paid the ones who stayed. A participant who stays <span class="classified" style="width:20ch"></span>.</p>
+    <h4>5.4 Hypotheses</h4>
+    <p>The project frames the experiment as three testable claims.</p>
+    <p><strong>H1.</strong> Tax-funded accumulation reaches 1 percent of shares outstanding. Measured directly from Vault holdings.</p>
+    <p><strong>H2.</strong> The game layer sustains token volume beyond the launch decay typical of fee tokens, defined as month-six volume above 25 percent of month-one volume. Fee tokens historically land below 5 percent.</p>
+    <p><strong>H3.</strong> QUBT's short interest falls faster, or its cost to borrow rises faster, than a basket of quantum peers over two consecutive FINRA reporting periods, after controlling for sector moves.</p>
+    <h4>5.5 Attention is the accelerant</h4>
+    <p>Everything in Sections 2 through 5 describes supply. None of it moves without attention, and this is the part of the GameStop episode that the short interest figures leave out.</p>
+    <p>GameStop's short position had been above 100 percent of float for months before January 2021. Nothing happened. What changed in the last two weeks of January was not the short interest. It was that the stock became the most discussed asset on the internet. The r/wallstreetbets subscriber count roughly tripled in a week. Robinhood became the most downloaded app in the United States. The ticker was on the front page of every financial outlet and then every outlet. The crowded short was the fuel. Attention was the ignition, and every day of attention brought new buyers who had never heard of the stock the day before.</p>
+    <p>The academic literature is unusually clear on this. Barber and Odean (2008) showed that individual investors are net buyers of attention-grabbing stocks: the ones in the news, the ones with abnormal volume, the ones with extreme one-day returns. Retail money does not screen for value. It buys what it is looking at. Da, Engelberg and Gao (2011) went further and showed that Google search volume for a ticker predicts retail buying and short-term price increases in the following weeks. Attention is not a side effect of price moves. It is a measurable input that precedes them.</p>
+    <p>That makes attention the variable a squeeze mechanism has to engineer, not just hope for. A treasury that buys quietly removes supply quietly, and a quiet supply squeeze resolves the way Section 6 warns: shorts cover slowly, the borrow fee ticks up, and nothing visible happens. The Vault can tighten the pool. Only attention can turn a tight pool into a run on it.</p>
+    <p>Operation 829 treats attention as a designed output rather than a marketing hope, and it does so by acting as a microphone for the movement rather than a voice in it. The project does not need to convince anyone that QUBT should be higher. It needs to make the case that already exists audible, and to give the people already making it something to point at. The seat counter is a number that moves in public, in real time, and every move is a reason to look. The declassification schedule turns the counter into a countdown, so a milestone is an event before it happens and a reveal after it. Epochs keyed to FINRA's settlement dates make a regulatory data release something a community waits for, twice a month, on a schedule the project does not control and therefore cannot be accused of timing. Burn transactions to the dead address are public and permanent, which means every entry is also a receipt someone can post. The game is designed so that the act of participating produces the content that recruits the next participant.</p>
+    <p>A microphone amplifies what is put into it. It does not generate the signal. That distinction matters for what the project claims and what it does not. Operation 829 makes no prediction about the stock and publishes none. It publishes a counter, a schedule, a rulebook, and a ledger, and it hands them to a crowd that was already short-squeeze curious about a stock that was already a third short. The GameStop crowd built its own microphone out of a subreddit and an app store ranking. This one is built on purpose, with the wiring exposed.</p>
+    <h3>6. Conclusion</h3>
+    <p>QUBT presents three of the four classic squeeze preconditions in current data: short interest at a third of the float and rising, days to cover above eight and rising, and a company-specific short bet that stands apart from its sector. The fourth precondition, a catalyst that removes shares from the lendable pool, is what Operation 829 attempts to manufacture. The mechanism exists, is funded by a transfer tax that does not depend on sentiment, and gates its purchases behind a burn to enter game that is verifiable on chain.</p>
+    <p>What the mechanism cannot do is guarantee scale. At current token volumes the Vault accumulates slowly, and the company's demonstrated willingness to issue shares into rallies is a brake the Vault cannot remove. The experiment is worth running because the question is genuinely open, the answer is measurable, and the mechanism fails safely: a Vault that never sells cannot dump on its own participants, and a burn that loses still shrinks the supply.</p>
+    <p>Fill the seats. Then measure.</p>
+    <a class="read-on" href="https://x.com/xLemoneee/status/2099229072727429382" target="_blank" rel="noopener">[ read on X ]</a>
+    <span class="stamp">experimental // unverified</span>
+    <p class="fine">Disclosure: the author is associated with Operation 829. Neither OP829 nor $SQUEEZE confers ownership of any QUBT shares, a claim on the Vault, or a promise of any distribution. Nothing here is investment, legal, or tax advice. All figures are as of the dates stated and change daily. Burns are irreversible.</p>
   </div>
 </dialog>
 
@@ -1480,6 +1622,7 @@
     name: 'operative clearance'
   };
   wireDossier('verify-open', 'dossier-verify', 'dossier-verify-close');
+  wireDossier('article-open', 'dossier-article', 'dossier-article-close');
 
   var vForm = document.getElementById('verify-form');
   var vWallet = document.getElementById('verify-wallet');
