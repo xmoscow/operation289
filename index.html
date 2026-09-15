@@ -781,7 +781,7 @@
   <div class="phase-title">Phase Two: <small>The Squeeze</small></div>
   <div class="ca" id="ca">
     <span>CA</span>
-    <span class="redact" id="ca-redact" aria-label="contract address pending"></span>
+    <span class="redact" id="ca-redact" aria-label="contract address"></span>
     <span class="addr" id="ca-addr" hidden></span>
     <button class="copy-btn" id="ca-copy" type="button">[ copy ]</button>
   </div>
@@ -1589,7 +1589,7 @@
 
   // Phase two contract address line. Blank (redacted bar) until PHASE2.ca is set.
   // BURN.token above stays as-is: it is the tranche 01 token the ledger reads.
-  var PHASE2 = { ca: '' };
+  var PHASE2 = { ca: '0x1941e163dc830f5050458725ba9c779488bb9ade' };  // SQUEEZE, Robinhood Chain
   (function paintCA() {
     var box = document.getElementById('ca');
     var addr = document.getElementById('ca-addr');
